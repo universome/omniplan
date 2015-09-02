@@ -1,0 +1,25 @@
+{
+  "name": "omniplan",
+  "version": "0.0.0",
+  "description": "Omniplan Web View",
+  "main": "server/index.js",
+  "scripts": {
+    "server": "nodemon --exec babel-node server/index",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@github.yandex-team.ru:universome/omniplan.git"
+  },
+  "keywords": [
+    "omniplan"
+  ],
+  "author": "Ivan Skorokhodov <universome@yandex-team.ru>",
+  "license": "ISC",
+  "dependencies": {
+    "digest-client": "latest",
+    "request": "^2.61.0",
+    "unzip": "^0.1.11",
+    "xml2js": "^0.4.11"
+  }
+}
