@@ -78,13 +78,14 @@ function saveJSON(data) {
 }
 
 
-loadFile(ARCHIVE_URL, AUTH_DATA)
-    .then(unzipAndSaveResponse)
-    .then(getFile)
-    .then(convertXmlToJson)
-    .then(processData)
-    .then(saveJSON)
-    .catch(console.log.bind(console));
-
-
-export default {};
+export function init() {
+    return new Promise(function(resolve, reject) {
+        loadFile(ARCHIVE_URL, AUTH_DATA)
+            .then(unzipAndSaveResponse)
+            .then(getFile)
+            .then(convertXmlToJson)
+            .then(processData)
+            .then(saveJSON)
+            .then(resolve);
+    });
+}

@@ -1,4 +1,6 @@
 .git
 node_modules
 npm-debug.log
-tmp/
+# tmp/
+bower_components/
+dist/
