@@ -1,51 +1,80 @@
 import fs from 'fs';
 import path from 'path';
-// import R from 'ramda';
-import unzip from 'unzip';
 import {parseString} from 'xml2js';
 import request from 'request';
+import mkpath from 'mkpath';
+import ADMZip from 'adm-zip';
+import R from 'ramda';
 import processData from './processData';
 
 const USERNAME    = '***REMOVED***';
 const PASSWORD    = '***REMOVED***';
-const ARCHIVE_URL = 'https://sync6.omnigroup.com/***REMOVED***/bLoHHW4hnhn.oplr/wrapper.zip';
-const AUTH_DATA = { auth: {user: USERNAME, pass: PASSWORD, sendImmediately: false} };
+const ARCHIVE_URL = 'https://sync6.omnigroup.com/***REMOVED***/kQ04SXS78hi.oplr/wrapper.zip';
+const AUTH_OPTIONS = { auth: {user: USERNAME, pass: PASSWORD, sendImmediately: false} };
 
 const RAW_DATA_FOLDER_PATH = path.join(__dirname, '..', '/tmp/downloads/wrapper');
+const ARCHIVE_FILE_NAME = 'wrapper.zip';
 const RAW_DATA_XML_FILE_NAME = 'Actual.xml';
 const RAW_DATA_JSON_FILE_NAME = 'Actual.json';
 
 const NORMAL_DATA_FOLDER_PATH = path.join(__dirname, '..', '/tmp');
 const NORMAL_DATA_JSON_FILE_NAME = 'data.json';
 
+function prepareFileSystem() {
+    return new Promise(function(resolve) {
+        mkpath.sync(NORMAL_DATA_FOLDER_PATH);
+        mkpath.sync(RAW_DATA_FOLDER_PATH);
+        resolve();
+    });
+}
 
 function loadFile(file_url, options) {
     return new Promise(function(resolve, reject) {
         request
-            .get(file_url, options)
+            .get(ARCHIVE_URL, AUTH_OPTIONS)
             .on('response', res => resolve(res));
     });
 }
 
-function unzipAndSaveResponse(response) {
+// function unzipAndSaveResponse(response) {
+//     return new Promise(function(resolve, reject) {
+//         let folderPath = RAW_DATA_FOLDER_PATH;// + '-' + Date.now();
+//         // let unzipStream = unzip.Extract({ path: folderPath });
+//         let unzipStream = zlib.createGunzip();
+//         let saveStream = fs.createWriteStream(RAW_DATA_FOLDER_PATH);
+//
+//         // Let's save our files unzipped?
+//         response
+//             .pipe(unzipStream)
+//             .pipe(saveStream);
+//
+//         saveStream.on('finish', function() {
+//             console.log(fs.existsSync(folderPath), folderPath + '/' + RAW_DATA_XML_FILE_NAME);
+//             resolve(folderPath);
+//         });
+//         saveStream.on('error', err => reject(err));
+//     });
+// }
+
+function saveResponse(response) {
     return new Promise(function(resolve, reject) {
+        let filePath   = `${RAW_DATA_FOLDER_PATH}/${ARCHIVE_FILE_NAME}`;
+        let saveStream = fs.createWriteStream(filePath);
 
-        var folderPath = RAW_DATA_FOLDER_PATH;// + '-' + Date.now();
-        var unzipStream = unzip.Extract({ path: folderPath });
+        response.pipe(saveStream);
 
-        // Let's save our files unzipped?
-        response.pipe(unzipStream);
+        saveStream.on('finish', () => resolve(filePath));
+        saveStream.on('error', err => reject(err));
+    });
+}
 
-        // We set timeout, because we should wait,
-        // while file system will recognize our created folder
-        // or file descriptor is closed or smth
-        // unzipStream.on('finish', setTimeout.bind(null, resolve.bind(this, folderPath), 100));
-        unzipStream.on('finish', function() {
-            // unzipStream.end();
-            // console.log(fs.existsSync(folderPath), folderPath + '/' + RAW_DATA_XML_FILE_NAME);
-            resolve(folderPath);
-        });
-        unzipStream.on('error', err => reject(err));
+function unzipData(archiveFilePath) {
+    return new Promise(function(resolve, reject) {
+        let folderPath = RAW_DATA_FOLDER_PATH;
+        let zip = new ADMZip(archiveFilePath);
+
+        zip.extractAllTo(folderPath, true);
+        resolve(folderPath);
     });
 }
 
@@ -70,22 +99,33 @@ function convertXmlToJson(xmlString) {
 
 function saveJSON(data) {
     return new Promise(function(resolve, reject) {
-        fs.writeFile(NORMAL_DATA_FOLDER_PATH + '/' + NORMAL_DATA_JSON_FILE_NAME, JSON.stringify(data), (err) => {
-            if (err) return reject(err);
-            resolve(data);
-        });
+        // fs.writeFile(`${NORMAL_DATA_FOLDER_PATH}/${NORMAL_DATA_JSON_FILE_NAME}`, JSON.stringify(data), (err) => {
+        //     if (err) return reject(err);
+        //     resolve(data);
+        // });
+        fs.writeFileSync(`${NORMAL_DATA_FOLDER_PATH}/${NORMAL_DATA_JSON_FILE_NAME}`, JSON.stringify(data), 'utf-8');
+        resolve(data);
     });
 }
 
 
 export function init() {
     return new Promise(function(resolve, reject) {
-        loadFile(ARCHIVE_URL, AUTH_DATA)
-            .then(unzipAndSaveResponse)
-            .then(getFile)
+        // prepareFileSystem()
+        //     .then(loadFile)
+        //     .then(saveResponse)
+        //     .then(unzipData)
+        //     .then(getFile)
+        //     .then(convertXmlToJson)
+        //     .then(processData)
+        //     .then(saveJSON)
+        //     .then(resolve)
+        //     .catch((err) => console.log('Error in omniplanClient:', err));
+        getFile(RAW_DATA_FOLDER_PATH)
             .then(convertXmlToJson)
             .then(processData)
             .then(saveJSON)
-            .then(resolve);
+            .then(resolve)
+            .catch((err) => console.log('Error in omniplanClient:', err.stack));
     });
 }

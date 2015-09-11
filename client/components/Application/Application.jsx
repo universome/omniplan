@@ -1,14 +1,20 @@
-import React from "react";
-import { RouteHandler } from "react-router";
+import React from 'react';
+// import styles from './Application.styl';
+import Calendar from 'components/Calendar/Calendar';
 
-import styles from "./Application.styl";
-
-export default class Application extends React.Component {
+class Application extends React.Component {
     render() {
         return (
             <div>
-                <h1>Welcome to Omniplan Web View</h1>
+                <div>
+                    <h1>Application</h1>
+                </div>
+                <div>
+                    <Calendar />
+                </div>
             </div>
         );
     }
-}
+};
+
+export default Application;

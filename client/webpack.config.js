@@ -5,27 +5,28 @@ var ROOT_DIR = path.join(__dirname, '..');
 var config = {
     devtool: '#source-map',
     context: __dirname,
-    entry: __dirname + '/main.jsx',
+    entry: './main.jsx',
+    // displayErrorDetails: true,
     output: {
         path: path.join(ROOT_DIR, 'dist'),
         filename: 'main.js'
     },
     resolve: {
-        root: [path.join(__dirname), path.join(ROOT_DIR, 'bower_components')],
+        root: [__dirname, path.join(ROOT_DIR, 'bower_components')],
         extensions: ['', '.js', '.jsx', '.styl']
     },
 
     module: {
         preLoaders: [
             {
-                test: /\.js$/,
+                test: /\.js|\.jsx$/,
                 loader: 'source-map-loader'
             }
         ],
         loaders: [
             {
                 test: /\.jsx?$/,
-                // exclude: /(node_modules|bower_components)/,
+                exclude: /(node_modules|bower_components)/,
                 loader: 'babel'
             },
             {
@@ -37,7 +38,6 @@ var config = {
 };
 
 var bowerWebpackPlugin = new webpack.ResolverPlugin.DirectoryDescriptionFilePlugin('bower.json', ['main']);
-
 config.plugins = [new webpack.ResolverPlugin(bowerWebpackPlugin)]
 
 module.exports = config;
