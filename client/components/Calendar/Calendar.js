@@ -4,15 +4,15 @@ import PlanStore from 'stores/PlanStore';
 import R from 'ramda';
 
 class Calendar extends React.Component {
-    constructor() {
-        super(arguments);
+    constructor(...args) {
+        super(args);
         this.state = {plan: {}};
     }
 
 	componentDidMount() {
-        PlanActions.fetchPlan();
-
         PlanStore.on('change', plan => this.setState({plan: plan}));
+
+        PlanActions.fetchPlan();
     }
 
     render() {
@@ -23,7 +23,7 @@ class Calendar extends React.Component {
         }
 
         return (
-            <div>
+            <div style={{position: 'relative'}}>
                 <h1>Calendar</h1>
                 <div>{tasks}</div>
             </div>
