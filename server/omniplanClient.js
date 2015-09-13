@@ -36,25 +36,6 @@ function loadFile(file_url, options) {
     });
 }
 
-// function unzipAndSaveResponse(response) {
-//     return new Promise(function(resolve, reject) {
-//         let folderPath = RAW_DATA_FOLDER_PATH;// + '-' + Date.now();
-//         // let unzipStream = unzip.Extract({ path: folderPath });
-//         let unzipStream = zlib.createGunzip();
-//         let saveStream = fs.createWriteStream(RAW_DATA_FOLDER_PATH);
-//
-//         // Let's save our files unzipped?
-//         response
-//             .pipe(unzipStream)
-//             .pipe(saveStream);
-//
-//         saveStream.on('finish', function() {
-//             console.log(fs.existsSync(folderPath), folderPath + '/' + RAW_DATA_XML_FILE_NAME);
-//             resolve(folderPath);
-//         });
-//         saveStream.on('error', err => reject(err));
-//     });
-// }
 
 function saveResponse(response) {
     return new Promise(function(resolve, reject) {

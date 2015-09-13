@@ -33,37 +33,18 @@ export default function processData(rawData) {
         data.creationDate = moment(rawData.scenario['start-date'][0]);
         data.tasks = rawData.scenario.task.map(processTask);
 
-        // Transform array of tasks to hashtable of tasks with {taskId: task} structure
-        data.tasks = arrayToObject('id', data.tasks);
+        let tasksMap = createMapFromArray('id', data.tasks);
 
-        // Add to each task with dependencies object with references to its dependencies
-        ensureDepTasks(data.tasks);
+        // Put child inside parents
+        data.tasks = buildArrayTree('subTasks', 'id', data.tasks);
 
-        // Backup shallow copy so to have fast reference to all tasks object
-        data.tasksHash = _.clone(data.tasks);
+        // Add additional fields, so it will be easier to display task
+        data.tasks.forEach(task => addDateToTask(task, tasksMap, data.creationDate));
+        addOrdersToTasks(data.tasks, tasksMap);
+        addDepthsToTasks(data.tasks);
+        addOffsetsToTasks(data.tasks, data.creationDate); // offset – amount of days from Plan creation
+        addLeadTime(data.tasks); // leadTime – amount of days, which task takes, including holidays and weekends
 
-        // Put all child tasks inside their parents
-        putChildTasksInParents(data.tasks);
-
-        // Add depth property to tasks, so it will be easier to display them
-        createDepthsOnTasks(data.tasks);
-
-        // Add orders on tasks
-        createOrdersOnTasks(data.tasks);
-
-        // Add startDate and endDate to each task
-        for (let taskId in data.tasksHash) {
-            ensureDateOnTask(data.tasksHash[taskId], data.tasksHash, data.creationDate);
-        }
-
-        // Add offsets to tasks, so it will be easier to display them
-        calculateOffsetsOnTasks(data.tasks, data.creationDate);
-
-        // Add offsets to tasks, so it will be easier to display them
-        calculateLeadTime(data.tasks);
-
-        deleteDepTasks(data.tasksHash);
-        delete data.tasksHash; // Now we can delete our backup
         resolve(data);
     });
 }
@@ -142,39 +123,20 @@ function processStyle(styleData) {
     return style;
 }
 
-function arrayToObject(key, array) {
-    let object = {};
-    array.forEach(o => object[o[key]] = o);
-    return object;
+function createMapFromArray(key, array) {
+    let map = {};
+    array.forEach(object => map[object[key]] = object);
+    return map;
 }
 
-function putChildTasksInParents(tasks) {
+function addDateToTask(task, tasksMap, defaultStartDate, _processedTasksIds) {  
 
-    let linksToBeRemoved = []; // First, let's create links where we need them
+    let processedTasksIds = _processedTasksIds || [];
 
-    for (let taskId in tasks) {
-        if (tasks[taskId].subTasks) {
-
-            let subTasksObj = {}; // Making temporary object
-
-            tasks[taskId].subTasks.forEach(subTaskId => {
-                subTasksObj[subTaskId] = tasks[subTaskId];
-                linksToBeRemoved.push(subTaskId);
-            });
-
-            tasks[taskId].subTasks = subTasksObj;
-        }
-    }
-
-    // Second, remove links from main object
-    linksToBeRemoved.forEach(taskId => delete tasks[taskId]);
-}
-
-
-function ensureDateOnTask(task, allTasks, defaultStartDate) {
-
-    if (task.startDate && task.endDate) {
+    if (processedTasksIds.indexOf(task.id) >= 0) {
         return;
+    } else {
+        processedTasksIds.push(task.id);
     }
 
     /* Counting startDate */
@@ -186,16 +148,18 @@ function ensureDateOnTask(task, allTasks, defaultStartDate) {
     }
 
     // If task has dependencies – its startDate should be the end of the latest dependency task
-    if (task.depTasks) {
+    if (task.depTasksIds) {
         let latestDepTask = null;
 
-        for (let depTaskId in task.depTasks) {
-            ensureDateOnTask(task.depTasks[depTaskId], allTasks, defaultStartDate);
+        task.depTasksIds
+            .filter(id => !processedTasksIds.includes(id))
+            .forEach(id => {
+                addDateToTask(tasksMap[id], tasksMap, defaultStartDate, processedTasksIds);
 
-            if (!latestDepTask || task.depTasks[depTaskId].endDate.isAfter(latestDepTask.endDate)) {
-                latestDepTask = task.depTasks[depTaskId];
-            }
-        }
+                if (!latestDepTask || tasksMap[id].endDate.isAfter(latestDepTask.endDate)) {
+                    latestDepTask = tasksMap[id];
+                }
+            });
 
         if (latestDepTask && latestDepTask.endDate.isAfter(task.startDate)) {
             task.startDate = latestDepTask.endDate;
@@ -212,15 +176,12 @@ function ensureDateOnTask(task, allTasks, defaultStartDate) {
         let earliestSubTask = null;
         let latestSubTask = null;
 
-        for (let subTaskId in task.subTasks) {
-
-            let subTask = task.subTasks[subTaskId];
-
-            ensureDateOnTask(subTask, allTasks, task.startDate);
+        task.subTasks.forEach((subTask) => {
+            addDateToTask(subTask, tasksMap, task.startDate, processedTasksIds);
 
             if (!earliestSubTask || subTask.startDate.isBefore(earliestSubTask.startDate)) earliestSubTask = subTask;
             if (!latestSubTask || subTask.endDate.isAfter(latestSubTask.endDate)) latestSubTask = subTask;
-        }
+        });
 
         // task.effort = latestSubTask.endDate.diff(earliestSubTask.startDate, 'days');
         task.effort = countWorkingDays(earliestSubTask.startDate, latestSubTask.endDate);
@@ -230,16 +191,32 @@ function ensureDateOnTask(task, allTasks, defaultStartDate) {
 
     /* Counting endDate */
 
-    task.endDate = countEndDate(task.startDate, task.effort);
-    if (task.minEndDate && task.endDate.isBefore(task.minEndDate)) task.endDate = task.minEndDate;
+    if (task.subTasks) {
+        
+        let latestSubTask = null;
+
+        task.subTasks.forEach(subTask => {
+            addDateToTask(subTask, tasksMap, task.startDate, processedTasksIds);
+
+            if (!latestSubTask || subTask.endDate.isAfter(latestSubTask.endDate)) {
+                latestSubTask = subTask;
+            }
+        });
+
+        task.endDate = moment(latestSubTask.endDate);
+    } else {
+        task.endDate = countEndDate(task.startDate, task.effort);
+    }
+
+    if (task.minEndDate && task.endDate.isBefore(task.minEndDate)) {
+        task.endDate = task.minEndDate;
+    }
 
 
     /* Do not forget to ensure dates on subtasks */
 
     if (task.subTasks) {
-        for (let subTaskId in task.subTasks) {
-            ensureDateOnTask(task.subTasks[subTaskId], allTasks, task.startDate);
-        }
+        task.subTasks.forEach(subTask => addDateToTask(subTask, tasksMap, task.startDate, processedTasksIds));
     }
 }
 
@@ -261,87 +238,63 @@ function isHoliday(date) {
     return date.isoWeekday() > 5 || PUBLIC_HOLIDAYS.some(holiday => date.isSame(holiday.year(date.year())) );
 }
 
-function ensureDepTasks(tasks) {
-    for (let taskId in tasks) {
-        if (!tasks[taskId].depTasksIds) continue;
 
-        tasks[taskId].depTasks = {};
-
-        tasks[taskId].depTasksIds.forEach((depTaskId) => {
-            // Yes, we have tasks, which depends on each other (oh, these stupid managers)
-            if (tasks[depTaskId].depTasksIds && tasks[depTaskId].depTasksIds.indexOf(taskId) >= 0) return;
-
-            tasks[taskId].depTasks[depTaskId] = tasks[depTaskId];
-        })
-    }
-}
-
-function deleteDepTasks(tasks) {
-    for (let taskId in tasks) {
-        if (tasks[taskId].depTasks) delete tasks[taskId].depTasks;
-    }
-}
-
-// function createnNextTasks(tasks) {
-//     for (let taskId in tasks) {
-//         if (tasks[taskId].depTasksIds) {
-//             tasks[taskId].depTasksIds.forEach((depTaskId) => {
-//                 tasks[depTaskId].nextTasks = tasks[depTaskId].nextTasks || {};
-//                 tasks[depTaskId].nextTasks[taskId] = tasks[taskId];
-//             });
-//         }
-//     }
-// }
-
-function createOrdersOnTasks(tasks, _order) {
+function addOrdersToTasks(tasks, tasksMap, _order, _processedTasksIds) {
 
     let order = _order || {counter: 1};
+    let processedTasksIds = _processedTasksIds || [];
 
-    for (let taskId in tasks) {
-        
-        if (tasks[taskId].order) continue;
+    tasks.forEach(task => {
+        if (processedTasksIds.includes(task.id)) {
+            return;
+        } else {
+            processedTasksIds.push(task.id);
+        }
         
         // Dependency task should be first
-        if (tasks[taskId].depTasks) createOrdersOnTasks(tasks[taskId].depTasks, order);
+        if (task.depTasksIds) {
+            let depTasks = task.depTasksIds.filter(id => !processedTasksIds.includes(id)).map(id => tasksMap[id]);
+            addOrdersToTasks(depTasks, tasksMap, order, processedTasksIds);
+        }
         
-        tasks[taskId].order = order.counter++;
+        task.order = order.counter++;
 
         // Subtasks should be last
-        if (tasks[taskId].subTasks) createOrdersOnTasks(tasks[taskId].subTasks, order);
-    }
+        if (task.subTasks) {
+            addOrdersToTasks(task.subTasks, tasksMap, order, processedTasksIds);
+        }
+    });
 }
 
-function createDepthsOnTasks(tasks, _depth) {
+function addDepthsToTasks(tasks, _depth) {
 
     let depth = _depth || 1;
 
-    for (let taskId in tasks) {
-        tasks[taskId].depth = depth;
+    tasks.forEach(task => {
+        task.depth = depth;
 
-        if (tasks[taskId].subTasks) {
-            createDepthsOnTasks(tasks[taskId].subTasks, depth + 1);
+        if (task.subTasks) {
+            addDepthsToTasks(task.subTasks, depth + 1);
         }
-    }
+    });
 }
 
-function calculateOffsetsOnTasks(tasks, date) {
-    for (let taskId in tasks) {
-        tasks[taskId].offset = tasks[taskId].startDate.diff(date, 'days');
+function addOffsetsToTasks(tasks, date) {
+    tasks.forEach(task => {
+        task.offset = task.startDate.diff(date, 'days');
 
-        if (tasks[taskId].subTasks) {
-            calculateOffsetsOnTasks(tasks[taskId].subTasks, date);
+        if (task.subTasks) {
+            addOffsetsToTasks(task.subTasks, date);
         }
-    }
+    });
 }
 
-function calculateLeadTime(tasks) {
-    for (let taskId in tasks) {
-        tasks[taskId].leadTime = tasks[taskId].endDate.diff(tasks[taskId].startDate, 'days');
-
-        if (tasks[taskId].subTasks) {
-            calculateLeadTime(tasks[taskId].subTasks);
-        }
-    }
+function addLeadTime(tasks) {
+    tasks.forEach(task => {
+        task.leadTime = task.endDate.diff(task.startDate, 'days');
+        
+        if (task.subTasks) addLeadTime(task.subTasks);
+    });
 }
 
 function countWorkingDays(_startDate, _endDate) {
@@ -356,4 +309,22 @@ function countWorkingDays(_startDate, _endDate) {
     };
 
     return workingDays;
+}
+
+function buildArrayTree(childrenKey, idKey, array) {
+    let tree = [];
+    let objectsToDelete = [];
+    
+    array.forEach(object => {
+        tree.push(object);
+        
+        if (object[childrenKey]) {
+            object[childrenKey] = object[childrenKey].map(childId => R.find( R.propEq(idKey, childId), array) );
+            object[childrenKey].forEach(child => objectsToDelete.push(child[idKey]));
+        }
+    });
+
+    tree = tree.filter(object => !objectsToDelete.includes(object.id));
+
+    return tree;
 }
