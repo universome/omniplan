@@ -3,6 +3,6 @@ global.config = {
 }
 
 import React from 'react';
-import Application from 'components/Application/Application';
+import Application from 'components/Application';
 
 React.render(<Application />, document.getElementById('main'));

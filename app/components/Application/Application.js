@@ -1,6 +1,6 @@
 import React from 'react';
 // import styles from './Application.styl';
-import Calendar from 'components/Calendar/Calendar';
+import Calendar from 'components/Calendar';
 import CalendarHeader from 'components/CalendarHeader';
 
 class Application extends React.Component {

@@ -16,7 +16,7 @@ var config = {
     resolve: {
         root: [__dirname],
         extensions: ['', '.js', '.styl'],
-        modulesDirectories: ['node_modules', 'client']
+        modulesDirectories: ['node_modules', 'app']
     },
 
     module: {

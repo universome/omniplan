@@ -1,5 +1,7 @@
 import express from 'express';
 import * as omniplanClient from './omniplanClient';
+import Root from '../app/components/Root';
+import React from 'react';
 
 const PORT = 3001;
 
@@ -19,9 +21,10 @@ export function start(port) {
 	});
 
 	server.get('/', (req, res) => {
-		res.sendFile('client/index.html', {
-			root: __dirname + '/..'
-		});
+		res.send('<!DOCTYPE html>' + React.renderToString(
+			<Root>
+			</Root>
+		));
 	});
 
 	server.get('/getPlan', (req, res) => {
