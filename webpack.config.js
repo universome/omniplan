@@ -1,5 +1,6 @@
 var path = require('path');
 var webpack = require('webpack');
+var ExtractTextPlugin = require('extract-text-webpack-plugin');
 
 var config = {
     devtool: '#source-map',
@@ -11,11 +12,11 @@ var config = {
     // displayErrorDetails: true,
     output: {
         path: './bin',
-        filename: 'main.js'
+        filename: '[name].js'
     },
     resolve: {
         root: [__dirname],
-        extensions: ['', '.js', '.styl'],
+        extensions: ['', '.js', '.css'],
         modulesDirectories: ['node_modules', 'app']
     },
 
@@ -33,8 +34,8 @@ var config = {
                 loader: 'babel'
             },
             {
-                test: /\.styl$/,
-                loader: 'style-loader!css-loader!stylus-loader'
+                test: /\.css$/,
+                loader: ExtractTextPlugin.extract('style-loader', 'css-loader?modules!postcss-loader')
             }
         ]
     },
@@ -47,8 +48,9 @@ var config = {
     },
 
     plugins: [
-        new webpack.optimize.CommonsChunkPlugin('vendor', 'vendor.bundle.js'),
-        new webpack.HotModuleReplacementPlugin()
+        new webpack.optimize.CommonsChunkPlugin('vendor', 'vendor.js'),
+        new webpack.HotModuleReplacementPlugin(),
+        new ExtractTextPlugin('[name].css')
     ]
 };
 

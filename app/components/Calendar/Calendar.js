@@ -1,7 +1,9 @@
 import React from 'react';
 import PlanActions from 'actions/PlanActions';
 import PlanStore from 'stores/PlanStore';
+import Task from 'components/Task';
 import R from 'ramda';
+import calendarStyles from './Calendar.css'
 
 class Calendar extends React.Component {
     constructor(...args) {
@@ -25,7 +27,8 @@ class Calendar extends React.Component {
         return (
             <div style={{position: 'relative'}}>
                 <h1>Calendar</h1>
-                <div>{tasks}</div>
+                <Task />
+                <div className={calendarStyles.tasks}>{tasks}</div>
             </div>
         );
     }
