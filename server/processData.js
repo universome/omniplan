@@ -38,6 +38,8 @@ export default function processData(rawData) {
         // Put child inside parents
         data.tasks = buildArrayTree('subTasks', 'id', data.tasks);
 
+        fixDeps(data.tasks, tasksMap);
+
         // Add additional fields, so it will be easier to display task
         data.tasks.forEach(task => addDateToTask(task, tasksMap, data.creationDate));
         addOrdersToTasks(data.tasks, tasksMap);
@@ -129,19 +131,13 @@ function createMapFromArray(key, array) {
     return map;
 }
 
-function addDateToTask(task, tasksMap, defaultStartDate, _processedTasksIds) {  
+function addDateToTask(task, tasksMap, defaultStartDate) {  
 
-    let processedTasksIds = _processedTasksIds || [];
-
-    if (processedTasksIds.indexOf(task.id) >= 0) {
-        return;
-    } else {
-        processedTasksIds.push(task.id);
-    }
+    if (task.endDate && task.startDate) return;
 
     /* Counting startDate */
 
-    task.startDate = defaultStartDate; // By default, task's startDate is startDate of its
+    task.startDate = defaultStartDate; // By default, task's startDate is startDate of Plan.creationDate
 
     if (task.minStartDate && task.minStartDate.isAfter(task.startDate)) {
         task.startDate = task.minStartDate;
@@ -151,15 +147,13 @@ function addDateToTask(task, tasksMap, defaultStartDate, _processedTasksIds) {
     if (task.depTasksIds) {
         let latestDepTask = null;
 
-        task.depTasksIds
-            .filter(id => !processedTasksIds.includes(id))
-            .forEach(id => {
-                addDateToTask(tasksMap[id], tasksMap, defaultStartDate, processedTasksIds);
+        task.depTasksIds.forEach(id => {
+            addDateToTask(tasksMap[id], tasksMap, defaultStartDate);
 
-                if (!latestDepTask || tasksMap[id].endDate.isAfter(latestDepTask.endDate)) {
-                    latestDepTask = tasksMap[id];
-                }
-            });
+            if (!latestDepTask || tasksMap[id].endDate.isAfter(latestDepTask.endDate)) {
+                latestDepTask = tasksMap[id];
+            }
+        });
 
         if (latestDepTask && latestDepTask.endDate.isAfter(task.startDate)) {
             task.startDate = latestDepTask.endDate;
@@ -177,7 +171,7 @@ function addDateToTask(task, tasksMap, defaultStartDate, _processedTasksIds) {
         let latestSubTask = null;
 
         task.subTasks.forEach((subTask) => {
-            addDateToTask(subTask, tasksMap, task.startDate, processedTasksIds);
+            addDateToTask(subTask, tasksMap, task.startDate);
 
             if (!earliestSubTask || subTask.startDate.isBefore(earliestSubTask.startDate)) earliestSubTask = subTask;
             if (!latestSubTask || subTask.endDate.isAfter(latestSubTask.endDate)) latestSubTask = subTask;
@@ -196,7 +190,7 @@ function addDateToTask(task, tasksMap, defaultStartDate, _processedTasksIds) {
         let latestSubTask = null;
 
         task.subTasks.forEach(subTask => {
-            addDateToTask(subTask, tasksMap, task.startDate, processedTasksIds);
+            addDateToTask(subTask, tasksMap, task.startDate);
 
             if (!latestSubTask || subTask.endDate.isAfter(latestSubTask.endDate)) {
                 latestSubTask = subTask;
@@ -216,7 +210,7 @@ function addDateToTask(task, tasksMap, defaultStartDate, _processedTasksIds) {
     /* Do not forget to ensure dates on subtasks */
 
     if (task.subTasks) {
-        task.subTasks.forEach(subTask => addDateToTask(subTask, tasksMap, task.startDate, processedTasksIds));
+        task.subTasks.forEach(subTask => addDateToTask(subTask, tasksMap, task.startDate));
     }
 }
 
@@ -239,30 +233,20 @@ function isHoliday(date) {
 }
 
 
-function addOrdersToTasks(tasks, tasksMap, _order, _processedTasksIds) {
+function addOrdersToTasks(tasks, tasksMap, _order) {
 
     let order = _order || {counter: 1};
-    let processedTasksIds = _processedTasksIds || [];
 
     tasks.forEach(task => {
-        if (processedTasksIds.includes(task.id)) {
-            return;
-        } else {
-            processedTasksIds.push(task.id);
-        }
+        if (task.order) return;
         
         // Dependency task should be first
-        if (task.depTasksIds) {
-            let depTasks = task.depTasksIds.filter(id => !processedTasksIds.includes(id)).map(id => tasksMap[id]);
-            addOrdersToTasks(depTasks, tasksMap, order, processedTasksIds);
-        }
+        if (task.depTasksIds) addOrdersToTasks(task.depTasksIds.map(id => tasksMap[id]), tasksMap, order);
         
         task.order = order.counter++;
 
         // Subtasks should be last
-        if (task.subTasks) {
-            addOrdersToTasks(task.subTasks, tasksMap, order, processedTasksIds);
-        }
+        if (task.subTasks) addOrdersToTasks(task.subTasks, tasksMap, order);
     });
 }
 
@@ -327,4 +311,21 @@ function buildArrayTree(childrenKey, idKey, array) {
     tree = tree.filter(object => !objectsToDelete.includes(object.id));
 
     return tree;
+}
+
+function fixDeps(tasks, tasksMap) {
+    tasks.forEach(task => {
+        if (task.depTasksIds) {
+            task.depTasksIds.forEach(depTaskId => {
+                
+                if (!tasksMap[depTaskId].depTasksIds) return;
+
+                let index = tasksMap[depTaskId].depTasksIds.indexOf(task.id);
+                
+                if (index >= 0) tasksMap[depTaskId].depTasksIds.splice(index, 1);
+            });
+        }
+
+        if (task.subTasks) fixDeps(task.subTasks, tasksMap);
+    });
 }
