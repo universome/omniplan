@@ -5,7 +5,7 @@ var ROOT_DIR = path.join(__dirname, '..');
 var config = {
     devtool: '#source-map',
     context: __dirname,
-    entry: './main.jsx',
+    entry: './main.js',
     // displayErrorDetails: true,
     output: {
         path: path.join(ROOT_DIR, 'dist'),
