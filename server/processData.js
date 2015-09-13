@@ -45,8 +45,11 @@ export default function processData(rawData) {
         // Put all child tasks inside their parents
         putChildTasksInParents(data.tasks);
 
-        // Add order property to tasks, so it will be easier to display them
+        // Add depth property to tasks, so it will be easier to display them
         createDepthsOnTasks(data.tasks);
+
+        // Add orders on tasks
+        createOrdersOnTasks(data.tasks);
 
         // Add startDate and endDate to each task
         for (let taskId in data.tasksHash) {
@@ -103,7 +106,7 @@ function processCalendarEvent(eventData) {
 }
 
 function processNote(noteData) {
-    var note = {};
+    let note = {};
 
     if (noteData[0].text[0].p[0].run[0].lit) note.text = noteData[0].text[0].p[0].run[0].lit[0];
     if (noteData[0].text[0].p[0].run[0].style) note.style = processStyle(noteData[0].text[0].p[0].run[0].style);
@@ -112,16 +115,18 @@ function processNote(noteData) {
 }
 
 function processTask(taskData, index) {
-    var task = {order: index};
+    // var task = {order: index};
+
+    let task = {};
 
     if (taskData.$) task.id = taskData.$.id;
     if (taskData.type) task.type = taskData.type[0];
     if (taskData.title) task.title = taskData.title[0];
     if (taskData.effort) task.effort = taskData.effort[0];
     if (taskData.note) task.note = processNote(taskData.note);
-    if (taskData['start-no-earlier-that']) task.minStartDate = moment(taskData['start-no-earlier-that'][0]);
+    if (taskData['start-no-earlier-than']) task.minStartDate = moment(taskData['start-no-earlier-than'][0]);
     if (taskData['start-constraint-date']) task.maxStartDate = moment(taskData['start-constraint-date'][0]);
-    if (taskData['end-no-earlier-that']) task.minEndDate = moment(taskData['end-no-earlier-that'][0]);
+    if (taskData['end-no-earlier-than']) task.minEndDate = moment(taskData['end-no-earlier-than'][0]);
     if (taskData['end-constraint-date']) task.maxEndDate = moment(taskData['end-constraint-date'][0]);
     if (taskData['child-task']) task.subTasks = taskData['child-task'].map(r => r.$.idref);
     if (taskData['prerequisite-task']) task.depTasksIds = taskData['prerequisite-task'].map(r => r.$.idref);
@@ -287,23 +292,23 @@ function deleteDepTasks(tasks) {
 //     }
 // }
 
-// function createOrdersOnTasks(tasks, _order, _depth) {
-//
-//     let depth = _depth || 1;
-//     let order = _order || {counter: 1};
-//
-//     for (let taskId in tasks) {
-//
-//         tasks[taskId].order = order.counter;
-//         tasks[taskId].depth = depth;
-//
-//         order.counter += 1;
-//
-//         if (tasks[taskId].subTasks) {
-//             createOrdersOnTasks(tasks[taskId].subTasks, order, depth + 1);
-//         }
-//     }
-// }
+function createOrdersOnTasks(tasks, _order) {
+
+    let order = _order || {counter: 1};
+
+    for (let taskId in tasks) {
+        
+        if (tasks[taskId].order) continue;
+        
+        // Dependency task should be first
+        if (tasks[taskId].depTasks) createOrdersOnTasks(tasks[taskId].depTasks, order);
+        
+        tasks[taskId].order = order.counter++;
+
+        // Subtasks should be last
+        if (tasks[taskId].subTasks) createOrdersOnTasks(tasks[taskId].subTasks, order);
+    }
+}
 
 function createDepthsOnTasks(tasks, _depth) {
 

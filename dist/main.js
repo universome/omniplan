@@ -19802,7 +19802,10 @@
 	        key: 'render',
 	        value: function render() {
 	
-	            var tasks = _ramda2['default'].mapObj(drawTask, this.state.plan.tasks);
+	            var tasks = [];
+	            for (var taskId in this.state.plan.tasks) {
+	                tasks.push(drawTask(this.state.plan.tasks[taskId]));
+	            }
 	
 	            return _react2['default'].createElement(
 	                'div',
@@ -19826,43 +19829,43 @@
 	
 	function drawTask(task) {
 	
-	    var subTasks = task.subTasks ? _ramda2['default'].mapObj(drawTask, task.subTasks) : _react2['default'].createElement(
-	        'p',
-	        null,
-	        ' No subTasks'
-	    );
+	    var subTasks = [];
+	    if (task.subTasks) {
+	        for (var subTaskId in task.subTasks) {
+	            subTasks.push(drawTask(task.subTasks[subTaskId]));
+	        }
+	    }
 	    var styles = {
 	        position: 'absolute',
-	        top: task.order * 50 + 'px',
-	        left: task.offset * 20 + 'px',
+	        top: task.order * 20 + 'px',
+	        left: task.offset * 10 + 'px',
 	
-	        width: task.type === 'milestone' ? '50px' : task.leadTime * 20 + 'px',
-	        // height: ((1/task.depth) * 50) + 'px',
-	        height: '50px',
+	        width: task.type === 'milestone' ? '20px' : task.leadTime * 10 + 'px',
+	        height: '20px',
 	
-	        borderBottom: '1px solid red',
-	        color: 'white',
-	        backgroundColor: task.type === 'milestone' ? 'black' : getBGCbyDepth(task.depth)
+	        // borderBottom: '1px solid red',
+	        fontSize: '12px',
+	        backgroundColor: task.type === 'milestone' ? 'green' : getBGCbyDepth(task.depth),
+	        border: '1px solid black',
+	        borderRadius: task.type === 'milestone' ? '50%' : 0,
+	        lineHeight: '20px',
+	        boxSizing: 'border-box'
 	    };
 	
 	    return _react2['default'].createElement(
 	        'div',
-	        { style: styles },
+	        { key: task.id },
 	        _react2['default'].createElement(
 	            'p',
-	            null,
-	            task.title
+	            { style: styles },
+	            task.id
 	        ),
-	        _react2['default'].createElement(
-	            'div',
-	            null,
-	            subTasks
-	        )
+	        subTasks
 	    );
 	}
 	
 	function getBGCbyDepth(depth) {
-	    var converter = ['#3498db', '#9b59b6', '#e67e22', '#c0392b', '#f1c40f'];
+	    var converter = ['#3498db', '#9b59b6', '#e67e22', '#c0392b', '#f1c40f', 'orange', 'green', 'red'];
 	
 	    return converter[depth];
 	}

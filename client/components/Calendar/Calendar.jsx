@@ -17,7 +17,10 @@ class Calendar extends React.Component {
 
     render() {
 
-        let tasks = R.mapObj(drawTask, this.state.plan.tasks);
+        let tasks = [];
+        for (let taskId in this.state.plan.tasks) {
+            tasks.push(drawTask(this.state.plan.tasks[taskId]));
+        }
 
         return (
             <div>
@@ -30,25 +33,33 @@ class Calendar extends React.Component {
 
 function drawTask(task) {
 
-    let subTasks = task.subTasks ? R.mapObj(drawTask, task.subTasks) : <p> No subTasks</p>;
+    let subTasks =  [];
+    if (task.subTasks) {
+        for (let subTaskId in task.subTasks) {
+            subTasks.push(drawTask(task.subTasks[subTaskId]));
+        }
+    }
     let styles = {
         position: 'absolute',
-        top: (task.order * 50) + 'px',
-        left: (task.offset * 20) + 'px',
+        top: (task.order * 20) + 'px',
+        left: (task.offset * 10) + 'px',
 
-        width: task.type === 'milestone' ? '50px' : (task.leadTime * 20) + 'px',
-        // height: ((1/task.depth) * 50) + 'px',
-        height: '50px',
+        width: task.type === 'milestone' ? '20px' : (task.leadTime * 10) + 'px',
+        height: '20px',
 
-        borderBottom: '1px solid red',
-        color: 'white',
-        backgroundColor: task.type === 'milestone' ? 'black' : getBGCbyDepth(task.depth)
+        // borderBottom: '1px solid red',
+        fontSize: '12px',
+        backgroundColor: task.type === 'milestone' ? 'green' : getBGCbyDepth(task.depth),
+        border: '1px solid black',
+        borderRadius: task.type === 'milestone' ? '50%' : 0,
+        lineHeight: '20px',
+        boxSizing: 'border-box'
     };
 
     return (
-        <div style={styles}>
-            <p>{task.title}</p>
-            <div>{subTasks}</div>
+        <div key={task.id}>
+            <p style={styles}>{task.id}</p>
+            {subTasks}
         </div>
     );
 }
@@ -59,7 +70,10 @@ function getBGCbyDepth(depth) {
         '#9b59b6',
         '#e67e22',
         '#c0392b',
-        '#f1c40f'
+        '#f1c40f',
+        'orange',
+        'green',
+        'red'
     ]
 
     return converter[depth];
