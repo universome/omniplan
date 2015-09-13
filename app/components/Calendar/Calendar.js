@@ -21,13 +21,12 @@ class Calendar extends React.Component {
 
         let tasks = [];
         for (let taskId in this.state.plan.tasks) {
-            tasks.push(drawTask(this.state.plan.tasks[taskId]));
+            tasks.push(<Task task={this.state.plan.tasks[taskId]} />);
         }
 
         return (
             <div style={{position: 'relative'}}>
                 <h1>Calendar</h1>
-                <Task />
                 <div className={calendarStyles.tasks}>{tasks}</div>
             </div>
         );
