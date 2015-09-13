@@ -18,7 +18,16 @@ export function start(port) {
 		next();
 	});
 
-	server.get('/getPlan', (req, res) => res.send(responseData) );
+	server.get('/', (req, res) => {
+		res.sendFile('client/index.html', {
+			root: __dirname + '/..'
+		});
+	});
+
+	server.get('/getPlan', (req, res) => {
+		console.log('getPlan request');
+		res.send(responseData);
+	});
 	server.listen(port, console.log.bind(console, `Server has started on port: ${port}`));
 }
 
