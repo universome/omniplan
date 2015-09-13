@@ -12,21 +12,21 @@ var config = {
         filename: 'main.js'
     },
     resolve: {
-        root: [__dirname, path.join(ROOT_DIR, 'bower_components')],
-        extensions: ['', '.js', '.jsx', '.styl']
+        root: [__dirname],
+        extensions: ['', '.js', '.styl']
     },
 
     module: {
         preLoaders: [
             {
-                test: /\.js|\.jsx$/,
+                test: /\.js$/,
                 loader: 'source-map-loader'
             }
         ],
         loaders: [
             {
-                test: /\.jsx?$/,
-                exclude: /(node_modules|bower_components)/,
+                test: /\.js$/,
+                exclude: /(node_modules)/,
                 loader: 'babel'
             },
             {
@@ -36,8 +36,5 @@ var config = {
         ]
     }
 };
-
-var bowerWebpackPlugin = new webpack.ResolverPlugin.DirectoryDescriptionFilePlugin('bower.json', ['main']);
-config.plugins = [new webpack.ResolverPlugin(bowerWebpackPlugin)]
 
 module.exports = config;
