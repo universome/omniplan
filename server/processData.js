@@ -222,7 +222,8 @@ function ensureDateOnTask(task, allTasks, defaultStartDate) {
             if (!latestSubTask || subTask.endDate.isAfter(latestSubTask.endDate)) latestSubTask = subTask;
         }
 
-        task.effort = latestSubTask.endDate.diff(earliestSubTask.startDate, 'days');
+        // task.effort = latestSubTask.endDate.diff(earliestSubTask.startDate, 'days');
+        task.effort = countWorkingDays(earliestSubTask.startDate, latestSubTask.endDate);
     } else {
         task.effort = 0;
     }
@@ -341,4 +342,18 @@ function calculateLeadTime(tasks) {
             calculateLeadTime(tasks[taskId].subTasks);
         }
     }
+}
+
+function countWorkingDays(_startDate, _endDate) {
+    let startDate = moment(_startDate);
+    let endDate = moment(_endDate);
+    let workingDays = 0;
+
+    while (startDate.isBefore(endDate)) {
+        while (isHoliday(startDate)) startDate.add(1, 'days');
+        startDate.add(1, 'days');
+        workingDays += 1;
+    };
+
+    return workingDays;
 }
