@@ -58,7 +58,7 @@ function drawTask(task) {
 
     return (
         <div key={task.id}>
-            <p style={styles}>{task.id}</p>
+            <p style={styles}>{task.id}, {task.effort}</p>
             {subTasks}
         </div>
     );
