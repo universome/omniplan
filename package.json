@@ -4,6 +4,8 @@
   "description": "Omniplan Web View",
   "main": "server/index.js",
   "scripts": {
+    "start": "npm run server & npm run client",
+    "client": "./node_modules/.bin/gulp",
     "server": "./node_modules/.bin/nodemon --exec ./node_modules/.bin/babel-node server/index",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
