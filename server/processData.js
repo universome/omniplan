@@ -35,15 +35,12 @@ export default function processData(rawData) {
 
         let tasksMap = createMapFromArray('id', data.tasks);
 
-        // Put child inside parents
-        data.tasks = buildArrayTree('subTasks', 'id', data.tasks);
-
         fixDeps(data.tasks, tasksMap);
 
         // Add additional fields, so it will be easier to display task
         data.tasks.forEach(task => addDateToTask(task, tasksMap, data.creationDate));
         addOrdersToTasks(data.tasks, tasksMap);
-        addDepthsToTasks(data.tasks);
+        addDepthsToTasks(data.tasks, tasksMap);
         addOffsetsToTasks(data.tasks, data.creationDate); // offset – amount of days from Plan creation
         addLeadTime(data.tasks); // leadTime – amount of days, which task takes, including holidays and weekends
 
@@ -111,7 +108,7 @@ function processTask(taskData, index) {
     if (taskData['start-constraint-date']) task.maxStartDate = moment(taskData['start-constraint-date'][0]);
     if (taskData['end-no-earlier-than']) task.minEndDate = moment(taskData['end-no-earlier-than'][0]);
     if (taskData['end-constraint-date']) task.maxEndDate = moment(taskData['end-constraint-date'][0]);
-    if (taskData['child-task']) task.subTasks = taskData['child-task'].map(r => r.$.idref);
+    if (taskData['child-task']) task.subTasksIds = taskData['child-task'].map(r => r.$.idref);
     if (taskData['prerequisite-task']) task.depTasksIds = taskData['prerequisite-task'].map(r => r.$.idref);
     if (taskData.assignment) task.assignment = {resourceId: taskData.assignment[0].$.idref, units: taskData.assignment[0].$.units};
 
@@ -147,11 +144,11 @@ function addDateToTask(task, tasksMap, defaultStartDate) {
     if (task.depTasksIds) {
         let latestDepTask = null;
 
-        task.depTasksIds.forEach(id => {
-            addDateToTask(tasksMap[id], tasksMap, defaultStartDate);
+        task.depTasksIds.map(id => tasksMap[id]).forEach(depTask => {
+            addDateToTask(depTask, tasksMap, defaultStartDate);
 
-            if (!latestDepTask || tasksMap[id].endDate.isAfter(latestDepTask.endDate)) {
-                latestDepTask = tasksMap[id];
+            if (!latestDepTask || depTask.endDate.isAfter(latestDepTask.endDate)) {
+                latestDepTask = depTask;
             }
         });
 
@@ -165,12 +162,12 @@ function addDateToTask(task, tasksMap, defaultStartDate) {
 
     if (task.effort) {
         task.effort = Math.round(parseInt(task.effort) / WORKING_TIME_PER_DAY);
-    } else if (task.subTasks) {
+    } else if (task.subTasksIds) {
 
         let earliestSubTask = null;
         let latestSubTask = null;
 
-        task.subTasks.forEach((subTask) => {
+        task.subTasksIds.map(id => tasksMap[id]).forEach((subTask) => {
             addDateToTask(subTask, tasksMap, task.startDate);
 
             if (!earliestSubTask || subTask.startDate.isBefore(earliestSubTask.startDate)) earliestSubTask = subTask;
@@ -185,16 +182,14 @@ function addDateToTask(task, tasksMap, defaultStartDate) {
 
     /* Counting endDate */
 
-    if (task.subTasks) {
+    if (task.subTasksIds) {
         
         let latestSubTask = null;
 
-        task.subTasks.forEach(subTask => {
+        task.subTasksIds.map(id => tasksMap[id]).forEach(subTask => {
             addDateToTask(subTask, tasksMap, task.startDate);
 
-            if (!latestSubTask || subTask.endDate.isAfter(latestSubTask.endDate)) {
-                latestSubTask = subTask;
-            }
+            if (!latestSubTask || subTask.endDate.isAfter(latestSubTask.endDate)) latestSubTask = subTask;
         });
 
         task.endDate = moment(latestSubTask.endDate);
@@ -209,8 +204,8 @@ function addDateToTask(task, tasksMap, defaultStartDate) {
 
     /* Do not forget to ensure dates on subtasks */
 
-    if (task.subTasks) {
-        task.subTasks.forEach(subTask => addDateToTask(subTask, tasksMap, task.startDate));
+    if (task.subTasksIds) {
+        task.subTasksIds.map(id => tasksMap[id]).forEach(subTask => addDateToTask(subTask, tasksMap, task.startDate));
     }
 }
 
@@ -246,19 +241,22 @@ function addOrdersToTasks(tasks, tasksMap, _order) {
         task.order = order.counter++;
 
         // Subtasks should be last
-        if (task.subTasks) addOrdersToTasks(task.subTasks, tasksMap, order);
+        if (task.subTasksIds) addOrdersToTasks(task.subTasksIds.map(id => tasksMap[id]), tasksMap, order);
     });
 }
 
-function addDepthsToTasks(tasks, _depth) {
+function addDepthsToTasks(tasks, tasksMap, _depth) {
 
     let depth = _depth || 1;
 
     tasks.forEach(task => {
+        
+        if (task.depth) return;
+        
         task.depth = depth;
 
-        if (task.subTasks) {
-            addDepthsToTasks(task.subTasks, depth + 1);
+        if (task.subTasksIds) {
+            addDepthsToTasks(task.subTasksIds.map(id => tasksMap[id]), tasksMap, depth + 1);
         }
     });
 }
@@ -266,18 +264,12 @@ function addDepthsToTasks(tasks, _depth) {
 function addOffsetsToTasks(tasks, date) {
     tasks.forEach(task => {
         task.offset = task.startDate.diff(date, 'days');
-
-        if (task.subTasks) {
-            addOffsetsToTasks(task.subTasks, date);
-        }
     });
 }
 
 function addLeadTime(tasks) {
     tasks.forEach(task => {
         task.leadTime = task.endDate.diff(task.startDate, 'days');
-        
-        if (task.subTasks) addLeadTime(task.subTasks);
     });
 }
 
@@ -295,37 +287,14 @@ function countWorkingDays(_startDate, _endDate) {
     return workingDays;
 }
 
-function buildArrayTree(childrenKey, idKey, array) {
-    let tree = [];
-    let objectsToDelete = [];
-    
-    array.forEach(object => {
-        tree.push(object);
-        
-        if (object[childrenKey]) {
-            object[childrenKey] = object[childrenKey].map(childId => R.find( R.propEq(idKey, childId), array) );
-            object[childrenKey].forEach(child => objectsToDelete.push(child[idKey]));
-        }
-    });
-
-    tree = tree.filter(object => !objectsToDelete.includes(object.id));
-
-    return tree;
-}
-
 function fixDeps(tasks, tasksMap) {
     tasks.forEach(task => {
         if (task.depTasksIds) {
-            task.depTasksIds.forEach(depTaskId => {
-                
-                if (!tasksMap[depTaskId].depTasksIds) return;
-
-                let index = tasksMap[depTaskId].depTasksIds.indexOf(task.id);
-                
-                if (index >= 0) tasksMap[depTaskId].depTasksIds.splice(index, 1);
+            task.depTasksIds.map(id => tasksMap[id]).forEach(depTask => {
+                if (!depTask.depTasksIds) return;
+                let index = depTask.depTasksIds.indexOf(task.id);
+                if (index >= 0) depTask.depTasksIds.splice(index, 1);
             });
         }
-
-        if (task.subTasks) fixDeps(task.subTasks, tasksMap);
     });
 }
