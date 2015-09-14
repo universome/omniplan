@@ -44,6 +44,13 @@ export default function processData(rawData) {
         addOffsetsToTasks(data.tasks, data.creationDate); // offset – amount of days from Plan creation
         addLeadTime(data.tasks); // leadTime – amount of days, which task takes, including holidays and weekends
 
+        data.tasks = buildTreeFromArray(data.tasks, {
+            oldChildrenKey: 'subTasksIds',
+            newChildrenKey: 'subTasks',
+            idKey: 'id', 
+            dropOldChildrenKey: true
+        });
+
         resolve(data);
     });
 }
@@ -297,4 +304,23 @@ function fixDeps(tasks, tasksMap) {
             });
         }
     });
+}
+
+function buildTreeFromArray(array, options) {
+    let tree = [];
+    let objectsToDelete = [];
+    
+    array.forEach(object => {
+        tree.push(object);
+        
+        if (object[options.oldChildrenKey]) {
+            object[options.newChildrenKey] = object[options.oldChildrenKey].map(childId => R.find( R.propEq(options.idKey, childId), array) );
+            object[options.newChildrenKey].forEach(child => objectsToDelete.push(child[options.idKey]));
+            if (options.dropOldChildrenKey) delete object[options.oldChildrenKey];
+        }
+    });
+
+    tree = tree.filter(object => !objectsToDelete.includes(object.id));
+
+    return tree;
 }
