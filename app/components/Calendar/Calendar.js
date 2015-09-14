@@ -68,14 +68,14 @@ function drawTask(task) {
 
 function getBGCbyDepth(depth) {
     let converter = [
-        '#3498db',
+        'black',
+        '#34495e',
         '#9b59b6',
-        '#e67e22',
-        '#c0392b',
-        '#f1c40f',
-        'orange',
-        'green',
-        'red'
+        '#3498db',
+        '#2ecc71',
+        '#1abc9c',
+        '#e74c3c',
+        '#f1c40f'
     ]
 
     return converter[depth];
