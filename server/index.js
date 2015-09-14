@@ -3,7 +3,7 @@ import * as omniplanClient from './omniplanClient';
 import Root from '../app/components/Root';
 import React from 'react';
 
-const PORT = 3001;
+const PORT = 3000;
 
 var server = express();
 var responseData = null;
