@@ -1,7 +1,8 @@
 import React from 'react';
 import R from 'ramda';
+import PlanStore from 'stores/PlanStore';
 import taskStyles from './Task.css';
-import {view} from 'stores/configStore';
+import {view} from 'stores/ConfigStore';
 import moment from 'moment';
 
 class Task extends React.Component {
@@ -22,11 +23,12 @@ class Task extends React.Component {
             backgroundColor: getBGCByTask(task)
         }
 
-        if (task.subTasks) {
-            subTasks = task.subTasks.map(task => {
+        if (task.subTasksIds) {
+            subTasks = task.subTasksIds.map(subTaskId => {
+                let subTask = PlanStore.tasksMap[subTaskId];
                 // var daysOffset = (moment(task.startDate).milliseconds() - startDate.milliseconds()) / (24 * 60 * 60 * 1000);
-                let daysOffset = task.offset * view.dayWidth;
-                return <Task task={task} daysOffset={daysOffset} />
+                let daysOffset = subTask.offset * view.dayWidth;
+                return <Task task={subTask} daysOffset={daysOffset} />
             });
         }
 

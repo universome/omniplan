@@ -1,3 +1,3 @@
 export var view = {
-    dayWidth: 5
+    dayWidth: 20
 };

@@ -1,18 +1,16 @@
 import React from 'react';
 // import styles from './Application.styl';
-import Calendar from 'components/Calendar';
-import CalendarHeader from 'components/CalendarHeader';
+import Chart from 'components/Chart';
+import ChartGrid from 'components/ChartGrid';
 
 class Application extends React.Component {
     render() {
         return (
             <div>
-                <div>
-                    <h1>Application</h1>
-                </div>
-                <div>
-                    <CalendarHeader />
-                    <Calendar />
+                <h2>Omniplan</h2>  
+                <div style={{position: 'relative'}}>
+                    <ChartGrid />
+                    <Chart />
                 </div>
             </div>
         );

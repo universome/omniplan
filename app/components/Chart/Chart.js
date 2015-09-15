@@ -3,9 +3,9 @@ import PlanActions from 'actions/PlanActions';
 import PlanStore from 'stores/PlanStore';
 import Task from 'components/Task';
 import R from 'ramda';
-import calendarStyles from './Calendar.css'
+import chartStyles from './Chart.css'
 
-class Calendar extends React.Component {
+class Chart extends React.Component {
     constructor(...args) {
         super(args);
         this.state = {plan: {}};
@@ -19,16 +19,16 @@ class Calendar extends React.Component {
 
     render() {
 
-        let tasks = this.state.plan.tasks ? this.state.plan.tasks.map(task => <Task task={task} />) : [];
-        // let tasks = this.state.plan.tasks ? this.state.plan.tasks.map(drawTask) : [];
+        let tasks;
+        tasks = this.state.plan && this.state.plan.tasks ? this.state.plan.tasks : [];
+        tasks = tasks.filter(task => task.depth === 1).map(task => <Task task={task} />);
 
         return (
             <div style={{position: 'relative'}}>
-                <h1>Calendar</h1>
-                <div className={calendarStyles.tasks}>{tasks}</div>
+                <div className={chartStyles.tasks}>{tasks}</div>
             </div>
         );
     }
 }
 
-export default Calendar;
+export default Chart;
