@@ -13,13 +13,13 @@ class ChartContentTask extends React.Component {
 
     render() {
         let task = this.props.task;
-        let width = view.dayWidth * task.leadTime;
         let startDate = moment(task.startDate)
         let subTasks = task.subTasksIds ? task.subTasksIds.map(id => PlanStore.tasksMap[id]) : [];
         let styles = {
-            width: width,
+            width: view.dayWidth * task.leadTime,
+            height: view.taskHeight + 'px',
             marginLeft: task.offset * view.dayWidth,
-            // borderRadius: view.dayWidth * 2 + 'px',
+            borderRadius: view.taskHeight + 'px',
             backgroundColor: getBGCByTask(task)
         }
 

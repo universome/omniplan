@@ -1,6 +1,7 @@
 .chartContent
 {
 	position: relative;
+	overflow-x: scroll;
 	/*display: inline-block;*/
 }
 

@@ -1,4 +1,5 @@
 .chartNav
 {
-	width: 200px;
+	min-width: 400px;
+	overflow-x: scroll;
 }

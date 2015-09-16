@@ -1,0 +1,12 @@
+.ChartNavTask
+{
+	font-size: 12px;
+	cursor: pointer;
+	white-space: nowrap;
+	margin-bottom: 1px;
+}
+
+.ChartNavTask:hover
+{
+	color: red;
+}

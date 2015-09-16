@@ -1,12 +1,9 @@
 .task
 {
-    height: 20px;
-    margin-bottom: 2px;
+    margin-bottom: 1px;
     /*border: 5px solid #bdc3c7;*/
     box-sizing: border-box;
-}
-
-.subTasks
-{
-		
+    font-size: 15px;
+    color: #fff;
+    /*padding: 2px;*/
 }
