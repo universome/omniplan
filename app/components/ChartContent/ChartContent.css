@@ -1,0 +1,10 @@
+.chartContent
+{
+	position: relative;
+	/*display: inline-block;*/
+}
+
+.chartContentTasks
+{
+	position: relative;
+}

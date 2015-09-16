@@ -1,11 +1,11 @@
 import React from 'react';
 import R from 'ramda';
 import PlanStore from 'stores/PlanStore';
-import taskStyles from './Task.css';
+import taskStyles from './ChartContentTask.css';
 import {view} from 'stores/ConfigStore';
 import moment from 'moment';
 
-class Task extends React.Component {
+class ChartContentTask extends React.Component {
     constructor(...args) {
         super(args);
         this.state = {plan: {}};
@@ -15,27 +15,18 @@ class Task extends React.Component {
         let task = this.props.task;
         let width = view.dayWidth * task.leadTime;
         let startDate = moment(task.startDate)
-        let subTasks;
+        let subTasks = task.subTasksIds ? task.subTasksIds.map(id => PlanStore.tasksMap[id]) : [];
         let styles = {
             width: width,
-            marginLeft: this.props.daysOffset,
+            marginLeft: task.offset * view.dayWidth,
             // borderRadius: view.dayWidth * 2 + 'px',
             backgroundColor: getBGCByTask(task)
         }
 
-        if (task.subTasksIds) {
-            subTasks = task.subTasksIds.map(subTaskId => {
-                let subTask = PlanStore.tasksMap[subTaskId];
-                // var daysOffset = (moment(task.startDate).milliseconds() - startDate.milliseconds()) / (24 * 60 * 60 * 1000);
-                let daysOffset = subTask.offset * view.dayWidth;
-                return <Task task={subTask} daysOffset={daysOffset} />
-            });
-        }
-
-
+        subTasks = subTasks.map(subTask => <ChartContentTask task={subTask} key={subTask.id} />);
 
         return (
-            <div key={task.id}>
+            <div>
                 <div style={styles} className={taskStyles.task}>{task.id}</div>
                 <div className={taskStyles.subTasks}>{subTasks}</div> 
             </div>
@@ -63,4 +54,4 @@ function getOffsetByStartDate(startDate) {
 
 }
 
-export default Task;
+export default ChartContentTask;
