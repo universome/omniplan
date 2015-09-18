@@ -17,6 +17,7 @@ class PlanStoreClass extends EventEmitter {
     setPlan(plan) {
         this._plan = plan || {};
         this.tasksMap = this._plan.tasks ? createMapFromArray('id', this._plan.tasks) : {};
+        this.resourcesMap = this._plan.resources ? createMapFromArray('id', this._plan.resources) : {};
         this.emit('change', this.getPlan());
     }
 

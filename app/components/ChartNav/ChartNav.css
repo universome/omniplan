@@ -2,4 +2,6 @@
 {
 	min-width: 400px;
 	overflow-x: scroll;
+	/*overflow: scroll;*/
+	/*resize: horizontal;*/
 }

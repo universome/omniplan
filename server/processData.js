@@ -33,10 +33,8 @@ export default function processData(rawData) {
         data.id = rawData.scenario.$.id;
         data.creationDate = moment(rawData.scenario['start-date'][0]);
         data.tasks = rawData.scenario.task.map(processTask);
+        data.resources = rawData.scenario.resource.map(processResource);
         data.topTask = rawData.scenario['top-task'][0].$.idref;
-
-        // This is very awkward, but we should not display our first main task with id 't-1'
-        // data.tasks = data.tasks.filter(task => task.id !== 't-1');
 
         let tasksMap = createMapFromArray('id', data.tasks);
 

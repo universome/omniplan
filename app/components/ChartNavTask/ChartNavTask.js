@@ -10,6 +10,7 @@ class ChartNavTask extends React.Component {
 
     render() {
         let task = this.props.task;
+        let number = this.props.number;
         let subTasks = task.subTasksIds ? task.subTasksIds.map(id => PlanStore.tasksMap[id]) : [];
         let styles = {
             marginLeft: task.depth * view.dayWidth + 'px',
@@ -17,11 +18,14 @@ class ChartNavTask extends React.Component {
             lineHeight: view.taskHeight + 'px'
         };
 
-        subTasks = subTasks.map(subTask => <ChartNavTask task={subTask} key={subTask.id}/>)
+        subTasks = subTasks.map((subTask, i) => <ChartNavTask task={subTask} number={number + '.' + (i+1).toString()} key={subTask.id}/>)
 
         return (
             <div>
-                <div style={styles} className={ChartNavTaskStyles.ChartNavTask}>{task.title}</div>
+                <div style={styles} className={ChartNavTaskStyles.ChartNavTask}>
+                    {number + ') '}
+                    {task.title}
+                </div>
                 <div>{subTasks}</div> 
             </div>
         );
