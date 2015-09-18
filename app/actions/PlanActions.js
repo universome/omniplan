@@ -1,5 +1,4 @@
 import AppDispatcher from 'AppDispatcher';
-// import reqwest from 'reqwest';
 import $ from 'jquery';
 
 var _planLastFetchTime = 0;
@@ -18,6 +17,14 @@ class PlanActionsClass {
                 AppDispatcher.dispatch({actionType: 'plan:fetch', plan: plan});
                 _planLastFetchTime = Date.now();
             });
+    }
+
+    resetFilters(filter) {
+        AppDispatcher.dispatch({actionType: 'plan:filter:reset'});
+    }
+
+    applyFilter(filter) {
+        AppDispatcher.dispatch({actionType: 'plan:filter', filter: filter});
     }
 }
 

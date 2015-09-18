@@ -8,23 +8,18 @@ import chartContentStyles from './ChartContent.css';
 class ChartContent extends React.Component {
     constructor(...args) {
         super(args);
-        this.state = {plan: {}};
-    }
-
-    componentDidMount() {
-        PlanStore.on('change', plan => this.setState({plan: plan}));
-        PlanActions.fetchPlan();
     }
 
     render() {
     	
     	let tasks;
-        tasks = this.state.plan && this.state.plan.tasks ? this.state.plan.tasks : [];
-        tasks = tasks.filter(task => task.depth === 1).map(task => <ChartContentTask task={task} key={task.id}/>);
+        let plan = this.props.plan;
+        tasks = plan && plan.tasks ? plan.tasks : [];
+        tasks = tasks.filter(task => task.depth === 1).map(task => <ChartContentTask task={task} plan={plan} key={task.id}/>);
 
         return (
             <div className={chartContentStyles.chartContent}>
-                <ChartContentGrid />
+                <ChartContentGrid plan={this.props.plan} />
                 <div className={chartContentStyles.chartContentTasks}>{tasks}</div>
             </div>
         );

@@ -3,15 +3,31 @@ import ChartContent from 'components/ChartContent';
 import ChartNav from 'components/ChartNav';
 import ChartSuggest from 'components/ChartSuggest';
 import ChartStyles from './Chart.css';
+import PlanStore from 'stores/PlanStore';
+import PlanActions from 'actions/PlanActions';
 
 class Chart extends React.Component {
+    constructor(...args) {
+        super(args);
+        this.state = {plan: {}};
+    }
+
+    componentDidMount() {
+        PlanStore.on('change', () => this.setState({ 
+            plan: PlanStore.getPlan(),
+            filteredPlan: PlanStore.getFilteredPlan()
+        }));
+        
+        PlanActions.fetchPlan();
+    }
+
     render() {
         return (
         	<div>
-        		<ChartSuggest />
+        		<ChartSuggest plan={this.state.plan} />
 	            <div className={ChartStyles.Chart}>
-	                <ChartNav />
-	                <ChartContent />
+	                <ChartNav plan={this.state.filteredPlan}/>
+	                <ChartContent plan={this.state.filteredPlan}/>
 	            </div>
         	</div>
         );

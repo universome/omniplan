@@ -6,18 +6,14 @@ import ChartNavTask from 'components/ChartNavTask';
 class ChartNav extends React.Component {
     constructor(...args) {
         super(args);
-        this.state = {plan: PlanStore.getPlan()};
-    }
-
-    componentDidMount() {
-        PlanStore.on('change', plan => this.setState({plan}));
     }
 
     render() {
 
         let tasks;
-        tasks = this.state.plan && this.state.plan.tasks ? this.state.plan.tasks : [];
-        tasks = tasks.filter(task => task.depth === 1).map((task, i) => <ChartNavTask task={task} number={(i+1).toString()} key={task.id}/>);
+        let plan = this.props.plan;
+        tasks = plan && plan.tasks ? plan.tasks : [];
+        tasks = tasks.filter(task => task.depth === 1).map((task, i) => <ChartNavTask task={task} plan={plan} number={(i+1).toString()} key={task.id}/>);
 
         return (
             <div className={chartNavStyles.chartNav}>{tasks}</div>

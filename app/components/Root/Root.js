@@ -4,7 +4,6 @@ import R from 'ramda';
 class Root extends React.Component {
     constructor(...args) {
         super(args);
-        this.state = {plan: {}};
     }
 
     render() {
