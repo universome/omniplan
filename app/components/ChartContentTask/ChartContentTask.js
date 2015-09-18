@@ -19,39 +19,18 @@ class ChartContentTask extends React.Component {
             width: view.dayWidth * task.leadTime,
             height: view.taskHeight + 'px',
             marginLeft: task.offset * view.dayWidth,
-            borderRadius: view.taskHeight + 'px',
-            backgroundColor: getBGCByTask(task)
+            borderRadius: view.taskHeight + 'px'
         }
 
         subTasks = subTasks.map(subTask => <ChartContentTask task={subTask} key={subTask.id} />);
 
         return (
             <div>
-                <div style={styles} className={taskStyles.task}>{task.id}</div>
+                <div style={styles} className={taskStyles.task} />
                 <div className={taskStyles.subTasks}>{subTasks}</div> 
             </div>
         );
     }
-}
-
-function getBGCByTask(task) {
-    let depthToColor = [
-        'black',
-        '#34495e',
-        '#9b59b6',
-        '#3498db',
-        '#2ecc71',
-        '#e74c3c',
-        '#f1c40f'
-    ]
-
-    let color = task.type !== 'milestone' ? depthToColor[task.depth] : 'black';
-
-    return color;
-}
-
-function getOffsetByStartDate(startDate) {
-
 }
 
 export default ChartContentTask;
