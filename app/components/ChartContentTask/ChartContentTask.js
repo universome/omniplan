@@ -14,11 +14,15 @@ class ChartContentTask extends React.Component {
         let plan = this.props.plan;
         let startDate = moment(task.startDate)
         let subTasks = task.subTasksIds ? task.subTasksIds.map(id => plan.tasksMap[id]) : [];
+        let effortDonePercents = Math.round((task.effortDone / task.effort) * 100) || 0;
+        let blue = '#3498db';
+        let green = '#40d47e';
         let styles = {
             width: view.dayWidth * task.leadTime,
             height: view.taskHeight + 'px',
             marginLeft: task.offset * view.dayWidth,
-            borderRadius: view.taskHeight + 'px'
+            borderRadius: view.taskHeight + 'px',
+            background: `linear-gradient(to right, ${green} 0%, ${green} ${effortDonePercents}%, ${blue} ${effortDonePercents}%, ${blue} 100%)`
         }
 
         subTasks = subTasks.map(subTask => <ChartContentTask task={subTask} plan={plan} key={subTask.id} />);

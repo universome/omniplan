@@ -20,17 +20,8 @@ export function start(port) {
 		next();
 	});
 
-	server.get('/', (req, res) => {
-		res.send('<!DOCTYPE html>' + React.renderToString(
-			<Root>
-			</Root>
-		));
-	});
-
-	server.get('/getPlan', (req, res) => {
-		console.log('getPlan request');
-		res.send(responseData);
-	});
+	server.get('/', (req, res) => res.send('<!DOCTYPE html>' + React.renderToString(<Root/>)));
+	server.get('/getPlan', (req, res) => res.send(responseData));
 	server.listen(port, console.log.bind(console, `Server has started on port: ${port}`));
 }
 

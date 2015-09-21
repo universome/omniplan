@@ -13,7 +13,7 @@ class ChartNav extends React.Component {
         let tasks;
         let plan = this.props.plan;
         tasks = plan && plan.tasks ? plan.tasks : [];
-        tasks = tasks.filter(task => task.depth === 1).map((task, i) => <ChartNavTask task={task} plan={plan} number={(i+1).toString()} key={task.id}/>);
+        tasks = tasks.filter(task => task.depth === 1).map((task, i) => <ChartNavTask task={task} plan={plan} number={(i+1).toString()} shouldShowDetails={true} key={task.id}/>);
 
         return (
             <div className={chartNavStyles.chartNav}>{tasks}</div>

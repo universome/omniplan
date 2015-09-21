@@ -46,6 +46,10 @@ export default function processData(rawData) {
         addDepthsToTasks(data.tasks, tasksMap);
         addOffsetsToTasks(data.tasks, data.creationDate); // offset – amount of days from Plan creation
         addLeadTime(data.tasks); // leadTime – amount of days, which task takes, including holidays and weekends
+        
+        // adding effortDone
+        let processedTasks = [];
+        data.tasks.forEach(task => calculateDoneEffortInDays(task, tasksMap, processedTasks));
 
         resolve(data);
     });
@@ -97,8 +101,7 @@ function processNote(noteData) {
     return note;
 }
 
-function processTask(taskData, index) {
-    // var task = {order: index};
+function processTask(taskData) {
 
     let task = {};
 
@@ -106,6 +109,7 @@ function processTask(taskData, index) {
     if (taskData.type) task.type = taskData.type[0];
     if (taskData.title) task.title = taskData.title[0];
     if (taskData.effort) task.effort = taskData.effort[0];
+    if (taskData['effort-done']) task.effortDone = parseInt(taskData['effort-done'][0]);
     if (taskData.note) task.note = processNote(taskData.note);
     if (taskData['start-no-earlier-than']) task.minStartDate = moment(taskData['start-no-earlier-than'][0]);
     if (taskData['start-constraint-date']) task.maxStartDate = moment(taskData['start-constraint-date'][0]);
@@ -114,8 +118,18 @@ function processTask(taskData, index) {
     if (taskData['child-task']) task.subTasksIds = taskData['child-task'].map(r => r.$.idref);
     if (taskData['prerequisite-task']) task.depTasksIds = taskData['prerequisite-task'].map(r => r.$.idref);
     if (taskData.assignment) task.assignment = {resourceId: taskData.assignment[0].$.idref, units: taskData.assignment[0].$.units};
+    if (taskData['user-data']) task.userData = processUserData(taskData['user-data'][0]);
 
     return task;
+}
+
+function processUserData(rawUserData) {
+	
+	let userDataKeys = rawUserData.key || [];
+	let userDataValues = rawUserData.string || [];
+	let userData = userDataKeys.map((key, i) => { return {key: key, value: userDataValues[i]} } );
+
+	return userData.filter(el => el.key && el.value);
 }
 
 function processStyle(styleData) {
@@ -294,4 +308,26 @@ function fixDeps(tasks, tasksMap) {
             });
         }
     });
+}
+
+function calculateDoneEffortInDays(task, tasksMap, processedTasks) {
+
+	if (processedTasks.includes(task.id)) return task.effortDone;
+
+	if (task.effortDone) {
+		let effortDoneEnd = countEndDate(task.startDate, task.effortDone / WORKING_TIME_PER_DAY);
+		task.effortDone = effortDoneEnd.diff(task.startDate, 'days');
+	} else if (task.subTasksIds) {
+		let totalEffortDone = task.subTasksIds.map(id => calculateDoneEffortInDays(tasksMap[id], tasksMap, processedTasks)).reduce((a, b) => a + b);
+		let totalEffortNeeded = task.subTasksIds.map(id => tasksMap[id].leadTime).reduce((a, b) => a + b);
+		let effortDoneFraction = totalEffortDone / totalEffortNeeded;
+		let effortDoneDays = effortDoneFraction * task.leadTime;
+		task.effortDone = Math.round(effortDoneDays);
+	} else {
+		task.effortDone = 0;
+	}
+
+	processedTasks.push(task.id);
+
+	return task.effortDone;
 }

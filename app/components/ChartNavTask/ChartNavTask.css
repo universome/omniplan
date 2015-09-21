@@ -1,12 +1,25 @@
 .ChartNavTask
 {
-	font-size: 12px;
-	cursor: pointer;
-	white-space: nowrap;
-	margin-bottom: 1px;
+	/*white-space: nowrap;*/
+	/*margin-bottom: 1px;*/
+	display: flex;
 }
 
 .ChartNavTask:hover
 {
 	color: red;
+}
+
+.ChartNavTaskTitle
+{
+	font-size: 12px;
+	cursor: pointer;
+	min-width: 300px;
+	/*flex-grow: 100;*/
+}
+
+.ChartNavTaskDetails
+{
+	width: 100px;
+	font-size: 12px;
 }
