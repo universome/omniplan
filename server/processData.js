@@ -316,7 +316,7 @@ function collectAllTasksIds(task, tasksMap) {
 
 function addOrdersToTasks(tasks, tasksMap, _order) {
 
-    let order = _order || {counter: 1};
+    let order = _order || {counter: 0};
 
     tasks.forEach(task => {
         if (task.order) return;

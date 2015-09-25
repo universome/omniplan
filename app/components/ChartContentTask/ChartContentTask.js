@@ -23,8 +23,8 @@ class ChartContentTask extends React.Component {
         let styles = {
             width: view.dayWidth * task.leadTime,
             height: view.taskHeight + 'px',
-            left: task.offset * view.dayWidth + 'px',
-            top: task.order * view.taskHeight + 'px',
+            marginLeft: task.offset * view.dayWidth + 'px',
+            // top: task.order * view.taskHeight + 'px',
             borderRadius: view.taskHeight + 'px',
             background: `linear-gradient(to right, ${green} 0%, ${green} ${effortDonePercents}%, ${blue} ${effortDonePercents}%, ${blue} 100%)`
         }

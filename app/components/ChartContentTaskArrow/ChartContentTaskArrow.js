@@ -14,16 +14,18 @@ class ChartContentTaskArrow extends React.Component {
 
 		// We display arrow as rectangle with top border and right border
 		// So all we need to do is to calculate 4 properties: top, left, height, width
-        let top    = Math.min(fromTask.order, toTask.order) * view.taskHeight;
+		// ATTENTION: we substract 1 order because we do not display main task (that has order #0)
+        let top    = (Math.min(fromTask.order, toTask.order) - 1) * view.taskHeight;
         let left   = (fromTask.offset + fromTask.leadTime) * view.dayWidth;
         let height = Math.abs(fromTask.order - toTask.order) * view.taskHeight;
         let width  = (toTask.offset - (fromTask.offset + fromTask.leadTime)) * view.dayWidth;
 
-        // Add a little to top and remove from height, so our arrows appear nicely (be at the middle of the bar)
+        // Add a little to top and substract from height, so our arrows appear nicely (be at the middle of the bar)
         top += (view.taskHeight / 2);
         height -= (view.taskHeight / 2);
 
-        width += toTask.effort > 1 ? view.dayWidth : view.dayWidth / 2; // Add a little offset to arrow pointer, if toTask's width is large enough
+        // Add a little offset to arrow pointer (the larger toTask's width the larger we should add)
+        width += toTask.effort > 1 ? view.dayWidth : view.dayWidth / 2;
 
         let style = {
         	top: top + 'px',

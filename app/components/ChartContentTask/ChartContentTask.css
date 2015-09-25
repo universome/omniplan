@@ -1,9 +1,8 @@
 .Task
 {
-    /*margin-bottom: 1px;*/
     border: 2px solid #2980b9;
     /*box-shadow: 0 0 0 1px #333;*/
-    position: absolute;
+    position: relative;
     box-sizing: border-box;
     cursor: pointer;
 }
@@ -15,5 +14,5 @@
 	top: 0;
 	margin-left: 10px;
 	font-size: 12px;
-	width: 999px
+	width: 999px;
 }
