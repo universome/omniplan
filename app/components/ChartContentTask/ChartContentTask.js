@@ -1,6 +1,6 @@
 import React from 'react';
 import R from 'ramda';
-import taskStyles from './ChartContentTask.css';
+import ChartContentTaskStyles from './ChartContentTask.css';
 import {view} from 'stores/ConfigStore';
 import moment from 'moment';
 import ChartContentTaskArrow from 'components/ChartContentTaskArrow';
@@ -13,6 +13,7 @@ class ChartContentTask extends React.Component {
     render() {
         let task = this.props.task;
         let plan = this.props.plan;
+        let resourceName = task.assignment ? plan.resourcesMap[task.assignment.resourceId].name : '';
         let startDate = moment(task.startDate);
         let subTasks = task.subTasksIds ? task.subTasksIds.map(id => plan.tasksMap[id]) : [];
         let depArrows = task.depTasksIds ? task.depTasksIds.map(id => {return { fromTask: plan.tasksMap[id], toTask: task }}) : [];
@@ -33,8 +34,10 @@ class ChartContentTask extends React.Component {
 
         return (
             <div>
-                <div style={styles} className={taskStyles.Task}>{task.id}</div>
-                <div className={taskStyles.subTasks}>{subTasks}</div>
+                <div style={styles} className={ChartContentTaskStyles.Task}>
+                	<div className={ChartContentTaskStyles.ResourceName}>{resourceName}</div>
+                </div>
+                <div className={ChartContentTaskStyles.subTasks}>{subTasks}</div>
                 {depArrows}
             </div>
         );

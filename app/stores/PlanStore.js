@@ -24,7 +24,7 @@ class PlanStoreClass extends EventEmitter {
         
         let filteredPlan = R.clone(plan);
         filteredPlan.tasksMap = createMapFromArray('id', filteredPlan.tasks) || {};
-        filteredPlan.resourcesMap = createMapFromArray('id', filteredPlan.tasks) || {};
+        filteredPlan.resourcesMap = createMapFromArray('id', filteredPlan.resources) || {};
 
         filteredPlan.tasks = filteredPlan.tasks.filter(task => checkIfTaskContainsResources(task, filteredPlan.tasksMap, chosenResourceIds));
         
