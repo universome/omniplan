@@ -2,6 +2,9 @@ import React from 'react';
 import moment from 'moment';
 import PlanStore from 'stores/PlanStore';
 import {view} from 'stores/ConfigStore';
+import getAmountOfDaysInMonth from 'helpers/getAmountOfDaysInMonth';
+import getEndDateByPlan from 'helpers/getEndDateByPlan';
+import getStartDateByPlan from 'helpers/getStartDateByPlan';
 import chartContentGridStyles from './ChartContentGrid.css';
 
 class ChartContentGrid extends React.Component {
@@ -34,23 +37,5 @@ class ChartContentGrid extends React.Component {
         );
     }
 };
-
-function getAmountOfDaysInMonth(date) {
-    
-    let nextMonthFirstDay = moment({ year: date.year(), month: date.month() + 1, date: 1 });
-    let monthLastDay = nextMonthFirstDay.add(-1, 'days');
-
-    return monthLastDay.date();
-}
-
-function getStartDateByPlan(plan) {
-    if (!plan || !plan.creationDate) return moment();
-    return moment(plan.creationDate);
-}
-
-function getEndDateByPlan(plan) {
-    if (!plan || !plan.tasks || !plan.tasks[0]) return moment();
-    return moment(plan.tasks[0].endDate);
-}
 
 export default ChartContentGrid;

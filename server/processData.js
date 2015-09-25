@@ -1,5 +1,4 @@
 import R from 'ramda';
-import _ from 'lodash';
 import moment from 'moment';
 import EventEmitter from 'events';
 import createMapFromArray from '../app/helpers/createMapFromArray';
@@ -38,16 +37,31 @@ export default function processData(rawData) {
 
         let tasksMap = createMapFromArray('id', data.tasks);
 
+        // 1. Some deps in omniplan are cyclic. We should remove such kind of deps
+        // Attention: function is not perfect at all and only remove straightforward cyclic dependencies
+        // 2. Some deps are duplicated. We need to remove duplicates also.
         fixDeps(data.tasks, tasksMap);
 
         // Add additional fields, so it will be easier to display task
         data.tasks.forEach(task => addDateToTask(task, tasksMap, data.creationDate));
-        addOrdersToTasks(data.tasks, tasksMap);
-        addDepthsToTasks(data.tasks, tasksMap);
-        addOffsetsToTasks(data.tasks, data.creationDate); // offset – amount of days from Plan creation
-        addLeadTime(data.tasks); // leadTime – amount of days, which task takes, including holidays and weekends
         
-        // adding effortDone
+        // Dependency tasks must be upper (this is  Gantt chart, bro)
+        sortTasksWithDeps(data.tasks[0].subTasksIds.map(id => tasksMap[id]), tasksMap);
+
+        // We should sort task in order they will be displayed
+        // This will give us 1 big benifit: we will always know top position of task dom element
+        addOrdersToTasks(data.tasks, tasksMap);
+        
+        // Calculating depths will allow us to easily add left paddings in Navigation panel
+        addDepthsToTasks(data.tasks, tasksMap);
+
+		// offset is amount of days since the time when Plan was created
+        addOffsetsToTasks(data.tasks, data.creationDate);
+
+        // leadTime is amount of days, which task takes, including holidays and weekends
+        addLeadTime(data.tasks);
+        
+        // effortDone is amount of days, including holidays and so, that are spent on the task
         let processedTasks = [];
         data.tasks.forEach(task => calculateDoneEffortInDays(task, tasksMap, processedTasks));
 
@@ -239,6 +253,67 @@ function isHoliday(date) {
 }
 
 
+function sortTasksWithDeps(tasks, tasksMap) {
+	// First, sort parent tasks
+	tasks.sort(compareDirectSubtasks.bind(null, tasksMap));
+
+	// Then, sort subTasks inside each of them separately
+	tasks.forEach(task => {
+		if (task.subTasksIds) {
+			sortTasksWithDeps(task.subTasksIds.map(id => tasksMap), tasksMap);
+		}
+	});
+}
+
+function compareDirectSubtasks(tasksMap, aTask, bTask) {
+	let aTaskAllIds = collectAllTasksIds(aTask, tasksMap);
+	let bTaskAllIds = collectAllTasksIds(bTask, tasksMap);
+	let aTaskAllDepsIds = collectAllDepTasksIds(aTask, tasksMap);
+	let bTaskAllDepsIds = collectAllDepTasksIds(bTask, tasksMap);
+
+	let doesBTaskDependOnATask = R.intersection(aTaskAllIds, bTaskAllDepsIds).length > 0;
+	let doesATaskDepenOnBTask = R.intersection(bTaskAllIds, aTaskAllDepsIds).length > 0;
+
+	switch (true) {
+		case doesBTaskDependOnATask && doesATaskDepenOnBTask:
+			console.warn('Wierd shit. A task depends on B task and backwards.');
+			return 0;	
+
+		case !doesBTaskDependOnATask && !doesATaskDepenOnBTask:
+			return 0; // Nothing depends on anything
+
+		case doesATaskDepenOnBTask:
+			return -1;
+
+		case doesBTaskDependOnATask:
+			return 1;
+	}
+}
+
+function collectAllDepTasksIds(task, tasksMap) {
+	let allDepTasksIds = task.depTasksIds || [];
+
+	if (task.subTasksIds) {
+		task.subTasksIds.map(id => tasksMap[id]).forEach(task => {
+			allDepTasksIds = allDepTasksIds.concat(collectAllDepTasksIds(task, tasksMap));
+		});
+	}
+
+	return allDepTasksIds;
+}
+
+function collectAllTasksIds(task, tasksMap) {
+	let allTasksIds = [task.id];
+	
+	if (task.subTasksIds) {
+		task.subTasksIds.map(id => tasksMap[id]).forEach(task => {
+			allTasksIds = allTasksIds.concat(collectAllTasksIds(task, tasksMap));
+		});
+	}
+
+	return allTasksIds;
+}
+
 function addOrdersToTasks(tasks, tasksMap, _order) {
 
     let order = _order || {counter: 1};
@@ -246,12 +321,9 @@ function addOrdersToTasks(tasks, tasksMap, _order) {
     tasks.forEach(task => {
         if (task.order) return;
         
-        // Dependency task should be first
-        if (task.depTasksIds) addOrdersToTasks(task.depTasksIds.map(id => tasksMap[id]), tasksMap, order);
-        
         task.order = order.counter++;
 
-        // Subtasks should be last
+        // Subtasks should go immidiately after their parent
         if (task.subTasksIds) addOrdersToTasks(task.subTasksIds.map(id => tasksMap[id]), tasksMap, order);
     });
 }
@@ -301,11 +373,12 @@ function countWorkingDays(_startDate, _endDate) {
 function fixDeps(tasks, tasksMap) {
     tasks.forEach(task => {
         if (task.depTasksIds) {
+            task.depTasksIds = R.uniq(task.depTasksIds); // Removing duplicates
             task.depTasksIds.map(id => tasksMap[id]).forEach(depTask => {
                 if (!depTask.depTasksIds) return;
                 let index = depTask.depTasksIds.indexOf(task.id);
-                if (index >= 0) depTask.depTasksIds.splice(index, 1);
-            });
+                if (index >= 0) depTask.depTasksIds.splice(index, 1) && console.log('Removed dep', depTask.id, '=>', task.id);
+            })
         }
     });
 }

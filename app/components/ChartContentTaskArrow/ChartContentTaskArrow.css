@@ -1,0 +1,36 @@
+.Arrow
+{
+	position: absolute;
+	border-right: 1px solid green;
+	z-index: -1;
+}
+
+.Arrow::after
+{
+	position: absolute;
+	right: 0;
+	content: '';
+	width: 5px;
+	height: 5px;
+	background-color: red;
+}
+
+.Arrow.FromTopToBottom
+{
+	border-top: 1px solid green;
+}
+
+.Arrow.FromTopToBottom::after
+{
+	bottom: 0;
+}
+
+.Arrow.FromBottomToTop
+{
+	border-bottom: 1px solid green;
+}
+
+.Arrow.FromBottomToTop::after
+{
+	top: 0;
+}
