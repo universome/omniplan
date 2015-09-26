@@ -33,7 +33,8 @@ export default function processData(rawData) {
         data.creationDate = moment(rawData.scenario['start-date'][0]);
         data.tasks = rawData.scenario.task.map(processTask);
         data.resources = rawData.scenario.resource.map(processResource);
-        data.topTask = rawData.scenario['top-task'][0].$.idref;
+        data.topTaskId = rawData.scenario['top-task'][0].$.idref;
+        data.tasks[0].isOpened = true;
 
         let tasksMap = createMapFromArray('id', data.tasks);
 
@@ -47,10 +48,6 @@ export default function processData(rawData) {
         
         // Dependency tasks must be upper (this is  Gantt chart, bro)
         sortTasksWithDeps(data.tasks[0].subTasksIds.map(id => tasksMap[id]), tasksMap);
-
-        // We should sort task in order they will be displayed
-        // This will give us 1 big benifit: we will always know top position of task dom element
-        addOrdersToTasks(data.tasks, tasksMap);
         
         // Calculating depths will allow us to easily add left paddings in Navigation panel
         addDepthsToTasks(data.tasks, tasksMap);
@@ -312,20 +309,6 @@ function collectAllTasksIds(task, tasksMap) {
 	}
 
 	return allTasksIds;
-}
-
-function addOrdersToTasks(tasks, tasksMap, _order) {
-
-    let order = _order || {counter: 0};
-
-    tasks.forEach(task => {
-        if (task.order) return;
-        
-        task.order = order.counter++;
-
-        // Subtasks should go immidiately after their parent
-        if (task.subTasksIds) addOrdersToTasks(task.subTasksIds.map(id => tasksMap[id]), tasksMap, order);
-    });
 }
 
 function addDepthsToTasks(tasks, tasksMap, _depth) {

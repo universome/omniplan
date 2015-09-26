@@ -23,3 +23,13 @@
 	width: 100px;
 	font-size: 12px;
 }
+
+.Opened .SubTasks
+{
+	display: block;
+}
+
+.SubTasks
+{
+	display: none;
+}

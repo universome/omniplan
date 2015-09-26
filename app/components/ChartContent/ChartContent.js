@@ -6,7 +6,7 @@ import ChartContentGrid from 'components/ChartContentGrid';
 import chartContentStyles from './ChartContent.css';
 import getEndDateByPlan from 'helpers/getEndDateByPlan';
 import getStartDateByPlan from 'helpers/getStartDateByPlan';
-import {view} from 'stores/ConfigStore';
+import SettingsStore from 'stores/SettingsStore';
 
 class ChartContent extends React.Component {
     constructor(...args) {
@@ -14,10 +14,9 @@ class ChartContent extends React.Component {
     }
 
     render() {
-    	
     	let tasks;
         let plan = this.props.plan;
-        let planWidth = getEndDateByPlan(plan).diff( getStartDateByPlan(plan), 'days' ) * view.dayWidth + 'px';
+        let planWidth = getEndDateByPlan(plan).diff( getStartDateByPlan(plan), 'days' ) * SettingsStore.get('dayWidth') + 'px';
 
         tasks = plan && plan.tasks ? plan.tasks : [];
         tasks = tasks.filter(task => task.depth === 1).map(task => <ChartContentTask task={task} plan={plan} key={task.id}/>);

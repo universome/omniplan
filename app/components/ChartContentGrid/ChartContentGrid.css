@@ -13,9 +13,9 @@
 .chartContentGridColumn
 {
 	border: solid #000;
-  border-width: 0 1px;
-  text-align: center;
-  height: 100%;
+  	border-width: 0 1px;
+  	text-align: center;
+  	height: 100%;
 }
 
 .chardContentGridTodayColumn

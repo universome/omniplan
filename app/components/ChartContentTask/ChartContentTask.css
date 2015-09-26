@@ -2,7 +2,7 @@
 {
     border: 2px solid #2980b9;
     /*box-shadow: 0 0 0 1px #333;*/
-    position: relative;
+    position: absolute;
     box-sizing: border-box;
     cursor: pointer;
 }
