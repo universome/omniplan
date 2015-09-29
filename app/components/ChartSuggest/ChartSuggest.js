@@ -12,6 +12,11 @@ class ChartSuggest extends React.Component {
     	document.getElementsByClassName(ChartSuggestStyles.Input)[0].focus();
     }
 
+	reset() {
+		PlanActions.resetFilters();
+		this.refs.typeahead.setEntryText('');
+	}
+
     render() {
     	let options = getOptionsFromPlan(this.props.plan);
 
@@ -32,18 +37,16 @@ class ChartSuggest extends React.Component {
       						filterOption = {filterOption}
       						displayOption = {displayOption}
       						onOptionSelected = {applyFilter}
+      						ref = 'typeahead'
       					/>
       				</div>
       			</div>
-  				<div className={ChartSuggestStyles.ResetButton} onClick={resetSettings}>Reset</div>
+  				<div className={ChartSuggestStyles.ResetButton} onClick={this.reset.bind(this)}>Reset</div>
       		</div>
   		);
     }
 }
 
-function resetSettings() {
-	PlanActions.resetFilters();
-}
 
 function getOptionsFromPlan(plan) {
 	return plan && plan.resources ? plan.resources.filter(r => r.name) : [];

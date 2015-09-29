@@ -28,7 +28,7 @@ class ChartContentTaskArrow extends React.Component {
         height -= SettingsStore.get('taskHeight') / 2;
 
         // Add a little offset to arrow pointer (the larger toTask's width the larger we should add)
-        width += toTask.effort > 1 ? SettingsStore.get('dayWidth') : SettingsStore.get('dayWidth') / 2;
+        width += SettingsStore.get('dayWidth') / ( toTask.effort > 1 ? 1 : (toTask.effort === 1 ? 2 : 3) );
 
         let style = {
         	top: top + 'px',

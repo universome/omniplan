@@ -1,4 +1,19 @@
+.Container
+{
+	position: fixed;
+	bottom: 0;
+	left: 0;
+	background-color: #3498db;
+	width: 100vw;
+	padding: 20px 20px 20px 20vw;
+	z-index: 2;
+	opacity: 0.9;
+}
+
 .Detail
 {
+	color: white;
 	font-size: 14px;
+	line-height: 20px;
+	font-weight: 300;
 }

@@ -9,7 +9,7 @@ import processData from './processData';
 
 const USERNAME    = '***REMOVED***';
 const PASSWORD    = '***REMOVED***';
-const ARCHIVE_URL = 'https://sync6.omnigroup.com/***REMOVED***/kQ04SXS78hi.oplr/wrapper.zip';
+const ARCHIVE_URL = 'https://sync6.omnigroup.com/***REMOVED***/aqCSESNf5vT.oplr/wrapper.zip';
 const AUTH_OPTIONS = { auth: {user: USERNAME, pass: PASSWORD, sendImmediately: false} };
 
 const RAW_DATA_FOLDER_PATH = path.join(__dirname, '..', '/tmp/downloads/wrapper');
@@ -92,21 +92,21 @@ function saveJSON(data) {
 
 export function init() {
     return new Promise(function(resolve, reject) {
-        // prepareFileSystem()
-        //     .then(loadFile)
-        //     .then(saveResponse)
-        //     .then(unzipData)
-        //     .then(getFile)
+        prepareFileSystem()
+            .then(loadFile)
+            .then(saveResponse)
+            .then(unzipData)
+            .then(getFile)
+            .then(convertXmlToJson)
+            .then(processData)
+            .then(saveJSON)
+            .then(resolve)
+            .catch((err) => console.log('Error in omniplanClient:', err));
+        // getFile(RAW_DATA_FOLDER_PATH)
         //     .then(convertXmlToJson)
         //     .then(processData)
         //     .then(saveJSON)
         //     .then(resolve)
         //     .catch((err) => console.log('Error in omniplanClient:', err.stack));
-        getFile(RAW_DATA_FOLDER_PATH)
-            .then(convertXmlToJson)
-            .then(processData)
-            .then(saveJSON)
-            .then(resolve)
-            .catch((err) => console.log('Error in omniplanClient:', err.stack));
     });
 }

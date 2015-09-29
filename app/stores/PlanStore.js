@@ -23,20 +23,21 @@ class PlanStoreClass extends EventEmitter {
 
     getFilteredPlan() {
 
-    	if (this._lastFiltersUpdateTime < this._lastFilteredPlanCalculationTime) return this._filteredPlan;
+    	if (this._lastFiltersUpdateTime <= this._lastFilteredPlanCalculationTime) return this._filteredPlan;
 
         let plan = this.getPlan();
-        let chosenResourceIds = this._taskFilters.map(filter => filter.value);
+        let chosenResourceIds = this._taskFilters.map(filter => filter.value); // We can filter only by resource id
+
         this._lastFilteredPlanCalculationTime = Date.now();
-        
-        if (!chosenResourceIds.length) return plan;
-        
         this._filteredPlan = R.clone(plan);
+        
+        if (!chosenResourceIds.length) return this._filteredPlan;
+        
         this._filteredPlan.tasks = this._filteredPlan.tasks.filter(task => checkIfTaskContainsResources(task, this._filteredPlan.tasksMap, chosenResourceIds));
         this._filteredPlan.tasksMap = createMapFromArray('id', this._filteredPlan.tasks) || {};
         this._filteredPlan.resourcesMap = createMapFromArray('id', this._filteredPlan.resources) || {};
         calculateTasksPositions(this._filteredPlan.tasks, this._filteredPlan.tasksMap);
-        
+
         return this._filteredPlan;
     }
 
@@ -57,12 +58,6 @@ class PlanStoreClass extends EventEmitter {
 
     addTaskFilter(filter) {
         this._taskFilters.push(filter);
-        this._lastFiltersUpdateTime = Date.now();
-        this.emit('change');
-    }
-
-    removeTaskFilter() {
-        this._taskFilters = [];
         this._lastFiltersUpdateTime = Date.now();
         this.emit('change');
     }

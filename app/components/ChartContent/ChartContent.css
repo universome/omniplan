@@ -2,8 +2,7 @@
 {
 	position: relative;
 	overflow-x: scroll;
-	/*overflow: scroll;*/
-	/*display: inline-block;*/
+	width: 80%;
 }
 
 .Tasks

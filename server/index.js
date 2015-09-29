@@ -9,6 +9,11 @@ const UPDATE_INTERVAL = 10 * 60 * 1000; /* Update data every 10 minutes */
 var server = express();
 var responseData = null;
 
+updateResponseData()
+	.then(startServer)
+	.then(startUpdatingData)
+	.catch(console.log.bind(console));
+
 function startServer(port) {
 	var port = port || PORT;
 
@@ -26,22 +31,20 @@ function startServer(port) {
 	server.listen(port, console.log.bind(console, `Server has started on port: ${port}`));
 }
 
-function updateData() {
-	
-}
-
-function prepareData() {
+function updateResponseData() {
 	return new Promise((resolve, reject) => {
-		omniplanClient
-			.init()
-			.then(data => {
-				// console.log('Response tasks:', data.tasks);
-				responseData = data;
-				resolve();
-			});
+		omniplanClient.init().then(data => {
+			responseData = data;
+			responseData.updateTime = Date.now();
+			console.info('Response data updated', responseData.updateTime);
+			resolve();
+		});
 	});
 }
 
-prepareData()
-	.then(startServer)
-	.catch(console.log.bind(console));
+function startUpdatingData() {
+	return new Promise((resolve) => {
+		setInterval(updateResponseData, UPDATE_INTERVAL);
+		resolve();
+	});
+}

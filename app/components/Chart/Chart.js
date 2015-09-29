@@ -9,7 +9,7 @@ import PlanActions from 'actions/PlanActions';
 class Chart extends React.Component {
     constructor(...args) {
         super(args);
-        this.state = {plan: {}};
+        this.state = {plan: {}, filteredPlan: {}};
     }
 
     componentDidMount() {

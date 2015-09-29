@@ -1,15 +1,21 @@
-.ChartNavTask
+.Task
 {
 	white-space: nowrap;
+	font-weight: 400;
 	display: block;
 }
 
-.ChartNavTask:hover
+.Task:hover
 {
 	color: #e74c3c;
 }
 
-.ChartNavTaskTitle
+.Opened > .Task
+{
+	font-weight: 500;
+}
+
+.TaskTitle
 {
 	font-size: 12px;
 	cursor: pointer;

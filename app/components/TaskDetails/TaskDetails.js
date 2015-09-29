@@ -21,15 +21,15 @@ class TaskDetails extends React.Component {
 		let task = plan.tasksMap[taskId];
 		
 		let details = [
-			{key: 'Lead time', value: `${moment(task.startDate).format('DD.MM.YYYY')} – ${moment(task.endDate).format('DD.MM.YYYY')}`},
-			{key: 'Task title', value: task.title},
-			{key: 'Assignment', value: task.assignment ? plan.resourcesMap[task.assignment.resourceId].name : null},
-			{key: 'Notes', value: task.note ? task.note.text : null},
+			{key: '', value: `${moment(task.startDate).format('DD.MM.YYYY')} – ${moment(task.endDate).format('DD.MM.YYYY')}`},
+			{key: '', value: task.title},
+			{key: '', value: task.assignment ? plan.resourcesMap[task.assignment.resourceId].name : null},
+			{key: '', value: task.note ? task.note.text : null},
 		]
 		
 		details = details
 			.concat( task.userDataList ? task.userDataList : [] )
-			.filter(detail => detail.key && detail.value)
+			.filter(d => d.value)
 			.map((data, i) => <TaskDetail data={data} key={i}/>);
 
 		return (
@@ -54,7 +54,7 @@ class TaskDetail extends React.Component {
 		if (isURL(value)) value = <a href={value} target={'_blank'}>link</a>;
 
 		return (
-			<div className={TaskDetailsStyles.TaskDetail}>{key + ' - '}{value}</div>
+			<div className={TaskDetailsStyles.TaskDetail}>{key + (key ? ' - ' : '')}{value}</div>
 		);
 	}
 }

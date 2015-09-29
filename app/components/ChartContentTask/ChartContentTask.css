@@ -13,12 +13,17 @@
 	opacity: 0.7;
 }
 
+.Opened
+{
+	border-color: #34495e;
+}
+
 .ResourceName
 {
 	position: absolute;
 	left: 100%;
-	top: 0;
+	top: -2px; /* experimented */
 	margin-left: 10px;
 	font-size: 12px;
-	width: 999px;
+	white-space: nowrap;
 }

@@ -40,7 +40,7 @@ class ChartContentTask extends React.Component {
 
         return (
             <div>
-                <div style={taskStyles} className={ChartContentTaskStyles.Task} onClick={this.toggle.bind(this)}>
+                <div style={taskStyles} className={`${ChartContentTaskStyles.Task} ${(task.isOpened ? ChartContentTaskStyles.Opened : '')}`} onClick={this.toggle.bind(this)}>
                 	<div className={ChartContentTaskStyles.ResourceName} style={resourceNameStyles}>{resourceName}</div>
                 </div>
                 <div className={ChartContentTaskStyles.SubTasks} style={{visibility:task.isOpened ? 'visible' : 'hidden'}}>{subTasks}</div>

@@ -24,8 +24,8 @@ class ChartNavTask extends React.Component {
 
 		return (
 			<div className={task.isOpened ? ChartNavTaskStyles.Opened : ''}>
-				<div style={styles} className={ChartNavTaskStyles.ChartNavTask}>
-					<div onClick={this.toggle.bind(this)} className={ChartNavTaskStyles.ChartNavTaskTitle}>{`${task.number}) ${task.title}`}</div>
+				<div style={styles} className={ChartNavTaskStyles.Task}>
+					<div onClick={this.toggle.bind(this)} className={ChartNavTaskStyles.TaskTitle}>{`${task.number}) ${task.title}`}</div>
 				</div>
 				<div className={ChartNavTaskStyles.SubTasks}>{subTasks}</div>
 			</div>
