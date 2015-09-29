@@ -8,33 +8,42 @@ class ChartSuggest extends React.Component {
         super(args);
     }
 
+    componentDidMount() {
+    	document.getElementsByClassName(ChartSuggestStyles.Input)[0].focus();
+    }
+
     render() {
     	let options = getOptionsFromPlan(this.props.plan);
 
       	return (
       		<div className={ChartSuggestStyles.Container}>
       			<div className={ChartSuggestStyles.Wrapper}>
-      				<Typeahead
-      					placeholder = 'Start entering resource name'
-      					options = {options}
-      					maxVisible = {10}
-      					customClasses = {{
-      						input: ChartSuggestStyles.Input,
-      						hover: ChartSuggestStyles.OptionHovered
-      					}}
-      					filterOption = {filterOption}
-      					displayOption = {displayOption}
-      					onOptionSelected = {applyFilter}
-      				/>
+      				<div className={ChartSuggestStyles.Suggest}>
+      					<Typeahead
+      						placeholder = 'Start entering resource name'
+      						options = {options}
+      						maxVisible = {10}
+      						customClasses = {{
+      							input: ChartSuggestStyles.Input,
+      							hover: ChartSuggestStyles.OptionHovered,
+      							listItem: ChartSuggestStyles.Option,
+      							listAnchor: ChartSuggestStyles.OptionContent
+      						}}
+      						filterOption = {filterOption}
+      						displayOption = {displayOption}
+      						onOptionSelected = {applyFilter}
+      					/>
+      				</div>
       			</div>
+  				<div className={ChartSuggestStyles.ResetButton} onClick={resetSettings}>Reset</div>
       		</div>
   		);
     }
 }
 
-// function getOptionsFromPlan(plan) {
-// 	return plan && plan.resources ? plan.resources.filter(r => r.name).map(r => r.name) : [];
-// }
+function resetSettings() {
+	PlanActions.resetFilters();
+}
 
 function getOptionsFromPlan(plan) {
 	return plan && plan.resources ? plan.resources.filter(r => r.name) : [];
@@ -49,7 +58,7 @@ function displayOption(resource) {
 }
 
 function applyFilter(resource) {
-  PlanActions.resetFilters();
+	PlanActions.resetFilters();
 	PlanActions.applyFilter({name: 'resourceId', value: resource.id});
 }
 

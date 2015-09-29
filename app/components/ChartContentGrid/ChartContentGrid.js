@@ -5,7 +5,7 @@ import SettingsStore from 'stores/SettingsStore';
 import getAmountOfDaysInMonth from 'helpers/getAmountOfDaysInMonth';
 import getEndDateByPlan from 'helpers/getEndDateByPlan';
 import getStartDateByPlan from 'helpers/getStartDateByPlan';
-import chartContentGridStyles from './ChartContentGrid.css';
+import ChartContentGridStyles from './ChartContentGrid.css';
 
 class ChartContentGrid extends React.Component {
     constructor(...args) {
@@ -22,20 +22,35 @@ class ChartContentGrid extends React.Component {
         }
             
         while (startDate.isBefore(endDate)) {
-            let columnTitle = startDate.format('MMMM YYYY');
-            let columnStyles = {width: getAmountOfDaysInMonth(startDate) * SettingsStore.get('dayWidth') + 'px'};
-
-            columns.push(<div className={chartContentGridStyles.chartContentGridColumn} key={columnTitle} style={columnStyles}>{columnTitle}</div>);
+            columns.push(<ChartContentGridColumn key={startDate.format()} startDate={moment(startDate)} />);
             startDate.add(1, 'months');
         }
 
         return (
-            <div className={chartContentGridStyles.chartContentGrid}>
+            <div className={ChartContentGridStyles.chartContentGrid}>
                 {columns}
-                <span className={chartContentGridStyles.chardContentGridTodayColumn} style={todayLineStyles}></span>
+                <span className={ChartContentGridStyles.chardContentGridTodayColumn} style={todayLineStyles}></span>
             </div>
         );
     }
 };
+
+class ChartContentGridColumn extends React.Component {
+	constructor(...args) {
+        super(args);
+    }
+
+    render() {
+    	let startDate = this.props.startDate;
+    	let title = startDate.format('MMMM YYYY');
+    	let style = {width: getAmountOfDaysInMonth(startDate) * SettingsStore.get('dayWidth') + 'px'};
+
+    	return (
+    		<div className={ChartContentGridStyles.chartContentGridColumn} style={style}>
+    			<div className={ChartContentGridStyles.ColumnHeader} style={{height: SettingsStore.get('chartGridHeaderHeight') + 'px'}}>{title}</div>
+    		</div>
+		);
+    }
+}
 
 export default ChartContentGrid;

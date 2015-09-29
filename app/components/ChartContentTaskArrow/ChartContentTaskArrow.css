@@ -1,36 +1,45 @@
 .Arrow
 {
 	position: absolute;
-	border-right: 1px solid green;
+	border-right: 2px solid #34495e;
 	z-index: -1;
+}
+
+.Arrow.FromTopToBottom
+{
+	border-top: 2px solid #34495e;
+}
+
+.Arrow.FromBottomToTop
+{
+	border-bottom: 2px solid #34495e;
 }
 
 .Arrow::after
 {
 	position: absolute;
-	right: 0;
-	content: '';
-	width: 5px;
-	height: 5px;
-	background-color: red;
-}
+	right: -6px;
 
-.Arrow.FromTopToBottom
-{
-	border-top: 1px solid green;
+	width: 0;
+	height: 0;
+
+	content: '';
 }
 
 .Arrow.FromTopToBottom::after
 {
 	bottom: 0;
-}
 
-.Arrow.FromBottomToTop
-{
-	border-bottom: 1px solid green;
+	border-left: 6px solid transparent;
+	border-right: 6px solid transparent;
+	border-top: 6px solid #34495e;
 }
 
 .Arrow.FromBottomToTop::after
 {
 	top: 0;
+
+	border-left: 6px solid transparent;
+	border-right: 6px solid transparent;
+	border-bottom: 6px solid #34495e;
 }

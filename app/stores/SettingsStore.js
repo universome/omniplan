@@ -7,8 +7,10 @@ class SettingsStoreClass extends EventEmitter {
 	static get defaults() {
 		return {
 			dayWidth: 10,
-			taskHeight: 15,
-			openedTasks: ['t-1']
+			taskHeight: 25,
+			chartGridHeaderHeight: 40,
+			openedTasks: ['t-1'],
+			lastOpenedTask: null
 		};
 	}
 
@@ -51,6 +53,7 @@ let SettingsStore = new SettingsStoreClass();
 SettingsStore.dispatchToken = AppDispatcher.register((payload) => {
 	if (payload.actionType === 'task:open') {
 		SettingsStore.addToCollection('openedTasks', payload.taskId);
+		SettingsStore.set('lastOpenedTask', payload.taskId);
 	}
 
 	if (payload.actionType === 'task:close') {

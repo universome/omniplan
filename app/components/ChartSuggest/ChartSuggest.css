@@ -1,33 +1,87 @@
 .Container
 {
-/*	display: flex;
+	height: 80px;
+	border: 20px solid transparent;
+	display: flex;
 	align-items: center;
-	justify-content: center;*/
-
-	height: 100px;
-	position: relative;
+	justify-content: center;
 }
 
 .Wrapper
 {
+	position: relative;
+	width: 500px;
+	height: 40px;
+}
+
+.Suggest
+{
 	position: absolute;
 	top: 0;
-	right: 0;
 	left: 0;
-	width: 500px;
+	z-index: 2;
+
+	width: 100%;
+	height: 100%;
 }
 
 .Input
 {
 	padding: 5px 10px;
 	width: 100%;
-	height: 25px;
+	height: 40px;
 	outline: none;
 	font-size: 16px;
+	border: 1px solid #ddd;
+	border-radius: 1px;
 }
 
-.OptionHovered
+.Input:focus
 {
-	color: red;
-	background-color: red;
+	border-color: white;
+	box-shadow: 0 0 2px 0 #3498db;
+}
+
+.Option
+{
+	background-color: white;
+	border-top: 1px solid #ddd;
+	padding: 5px;
+	cursor: pointer;
+}
+
+.Option:first-child
+{
+	border-top: none;
+}
+
+.OptionHovered, .Option:hover
+{
+	background-color: #3498db;
+}
+
+.OptionHovered .OptionContent, .Option:hover .OptionContent
+{
+	/*color: #e74c3c;*/ /* alizarin */
+	color: white;
+}
+
+.OptionContent
+{
+	text-decoration: none;
+	cursor: auto;
+	color: black;
+	font-weight: 300;
+}
+
+.ResetButton
+{
+	cursor: pointer;
+	border: 1px solid #ddd;
+	padding: 5px;
+	width: 100px;
+	text-align: center;
+	height: 40px;
+	line-height: 30px; /* dunno why */
+	margin-left: 5px;
 }

@@ -1,6 +1,5 @@
 import R from 'ramda';
 import moment from 'moment';
-import EventEmitter from 'events';
 import createMapFromArray from '../app/helpers/createMapFromArray';
 
 const WORKING_TIME_PER_DAY = 8 * 60 * 60; // We work 8 hours a day
@@ -87,8 +86,8 @@ function processCalendar(calendarData) {
     let calendar = {};
 
     if (calendarData.$) calendar.name = calendarData.$.name;
-    if (calendarData.$) calendar.overtime = calendarData.$.overtime === "yes";
-    if (calendarData.$) calendar.editable = calendarData.$.editable === "yes";
+    if (calendarData.$) calendar.overtime = calendarData.$.overtime === 'yes';
+    if (calendarData.$) calendar.editable = calendarData.$.editable === 'yes';
     if (calendarData.event) calendar.events = calendarData.event.map(processCalendarEvent);
 
     return calendar;
@@ -119,17 +118,18 @@ function processTask(taskData) {
     if (taskData.$) task.id = taskData.$.id;
     if (taskData.type) task.type = taskData.type[0];
     if (taskData.title) task.title = taskData.title[0];
-    if (taskData.effort) task.effort = taskData.effort[0];
+    if (taskData['effort']) task.effort = taskData.effort[0];
     if (taskData['effort-done']) task.effortDone = parseInt(taskData['effort-done'][0]);
-    if (taskData.note) task.note = processNote(taskData.note);
+    if (taskData['leveled-start']) task.leveledStartDate = moment(taskData['leveled-start'][0]);
+    if (taskData['note']) task.note = processNote(taskData.note);
     if (taskData['start-no-earlier-than']) task.minStartDate = moment(taskData['start-no-earlier-than'][0]);
     if (taskData['start-constraint-date']) task.maxStartDate = moment(taskData['start-constraint-date'][0]);
     if (taskData['end-no-earlier-than']) task.minEndDate = moment(taskData['end-no-earlier-than'][0]);
     if (taskData['end-constraint-date']) task.maxEndDate = moment(taskData['end-constraint-date'][0]);
     if (taskData['child-task']) task.subTasksIds = taskData['child-task'].map(r => r.$.idref);
     if (taskData['prerequisite-task']) task.depTasksIds = taskData['prerequisite-task'].map(r => r.$.idref);
-    if (taskData.assignment) task.assignment = {resourceId: taskData.assignment[0].$.idref, units: taskData.assignment[0].$.units};
-    if (taskData['user-data']) task.userData = processUserData(taskData['user-data'][0]);
+    if (taskData['assignment']) task.assignment = {resourceId: taskData.assignment[0].$.idref, units: taskData.assignment[0].$.units};
+    if (taskData['user-data']) task.userDataList = processUserData(taskData['user-data'][0]);
 
     return task;
 }
@@ -156,7 +156,7 @@ function addDateToTask(task, tasksMap, defaultStartDate) {
 
     /* Counting startDate */
 
-    task.startDate = defaultStartDate; // By default, task's startDate is startDate of Plan.creationDate
+    task.startDate = task.leveledStartDate || defaultStartDate; // By default, task's startDate is startDate of Plan.creationDate
 
     if (task.minStartDate && task.minStartDate.isAfter(task.startDate)) {
         task.startDate = task.minStartDate;

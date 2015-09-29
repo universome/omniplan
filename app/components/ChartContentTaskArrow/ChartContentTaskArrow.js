@@ -12,6 +12,9 @@ class ChartContentTaskArrow extends React.Component {
         let fromTask = this.props.fromTask;
         let toTask = this.props.toTask;
 
+		// If our arrow goes from bottom to top – we will have a bit different styles
+        let isFromBottomToTop = fromTask.position > toTask.position;
+
 		// We display arrow as rectangle with top border and right border
 		// So all we need to do is to calculate 4 properties: top, left, height, width
         let top    = Math.min(fromTask.position, toTask.position) * SettingsStore.get('taskHeight');
@@ -19,9 +22,10 @@ class ChartContentTaskArrow extends React.Component {
         let height = Math.abs(fromTask.position - toTask.position) * SettingsStore.get('taskHeight');
         let width  = (toTask.offset - (fromTask.offset + fromTask.leadTime)) * SettingsStore.get('dayWidth');
 
-        // Add a little to top and substract from height, so our arrows appear nicely (be at the middle of the bar)
-        top += (SettingsStore.get('taskHeight') / 2);
-        height -= (SettingsStore.get('taskHeight') / 2);
+        // Add a little to top and substract from height, so our arrows appear nicely (be fully visible and placed vertically at the middle of the bar)
+        // If fromTask is lower –> our top position calculated based on toTask -> we should substract full task height
+        top += SettingsStore.get('taskHeight') / (isFromBottomToTop ? 1 : 2);
+        height -= SettingsStore.get('taskHeight') / 2;
 
         // Add a little offset to arrow pointer (the larger toTask's width the larger we should add)
         width += toTask.effort > 1 ? SettingsStore.get('dayWidth') : SettingsStore.get('dayWidth') / 2;
@@ -33,8 +37,6 @@ class ChartContentTaskArrow extends React.Component {
         	width: width + 'px'
         }
 
-        // If our arrow goes from bottom to top – we will have a bit different styles
-        let isFromBottomToTop = fromTask.position > toTask.position;
         let classNames = `${ChartContentTaskArrowStyles.Arrow} ${isFromBottomToTop ? ChartContentTaskArrowStyles.FromBottomToTop : ChartContentTaskArrowStyles.FromTopToBottom}`
 
         return (

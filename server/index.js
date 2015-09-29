@@ -4,11 +4,12 @@ import Root from '../app/components/Root';
 import React from 'react';
 
 const PORT = 3000;
+const UPDATE_INTERVAL = 10 * 60 * 1000; /* Update data every 10 minutes */
 
 var server = express();
 var responseData = null;
 
-export function start(port) {
+function startServer(port) {
 	var port = port || PORT;
 
 	server.all('*', (req, res, next) => {
@@ -25,7 +26,11 @@ export function start(port) {
 	server.listen(port, console.log.bind(console, `Server has started on port: ${port}`));
 }
 
-export function prepareData() {
+function updateData() {
+	
+}
+
+function prepareData() {
 	return new Promise((resolve, reject) => {
 		omniplanClient
 			.init()
@@ -38,5 +43,5 @@ export function prepareData() {
 }
 
 prepareData()
-	.then(start)
+	.then(startServer)
 	.catch(console.log.bind(console));

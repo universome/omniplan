@@ -1,4 +1,4 @@
-.chartContent
+.Content
 {
 	position: relative;
 	overflow-x: scroll;
@@ -6,7 +6,7 @@
 	/*display: inline-block;*/
 }
 
-.chartContentTasks
+.Tasks
 {
 	position: relative;
 }
