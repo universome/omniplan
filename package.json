@@ -4,9 +4,10 @@
   "description": "Omniplan Web View",
   "main": "server/index.js",
   "scripts": {
-    "start": "npm run server & npm run client",
+    "dev": "npm run server & npm run client",
     "client": "node_modules/.bin/webpack-dev-server",
     "server": "./node_modules/.bin/nodemon --exec ./node_modules/.bin/babel-node server/index",
+    "prod": "./node_modules/.bin/forever start -c ./node_modules/.bin/babel-node server/index.js PROD=1 PORT=49494",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -31,6 +32,7 @@
     "express": "^4.13.3",
     "extract-text-webpack-plugin": "^0.8.2",
     "flux": "^2.1.1",
+    "forever": "^0.15.1",
     "jquery": "^2.1.4",
     "lodash": "^3.10.1",
     "mkpath": "^0.1.0",
