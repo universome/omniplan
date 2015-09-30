@@ -19,6 +19,7 @@ class ChartContentGrid extends React.Component {
         let todayLineStyles = {
             width: SettingsStore.get('dayWidth') + 'px',
             left: moment().diff(startDate, 'days') * SettingsStore.get('dayWidth') + 'px',
+            display: startDate.isBefore(moment()) ? 'block' : 'none'
         }
             
         while (startDate.isBefore(endDate)) {
@@ -29,7 +30,7 @@ class ChartContentGrid extends React.Component {
         return (
             <div className={ChartContentGridStyles.chartContentGrid}>
                 {columns}
-                <span className={ChartContentGridStyles.chardContentGridTodayColumn} style={todayLineStyles}></span>
+                <span className={ChartContentGridStyles.Today} style={todayLineStyles}></span>
             </div>
         );
     }

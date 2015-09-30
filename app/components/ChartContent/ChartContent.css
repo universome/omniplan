@@ -1,8 +1,17 @@
 .Content
 {
 	position: relative;
-	overflow-x: scroll;
-	width: 80%;
+	border-bottom: 200px;
+	flex-grow: 100;
+}
+
+.Wrapper
+{
+	display: flex;
+	position: relative;
+	/*min-height: 100vh;*/
+	/*box-sizing: content-box;*/
+	/*border-bottom: 150px;*/
 }
 
 .Tasks

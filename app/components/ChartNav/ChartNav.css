@@ -2,5 +2,12 @@
 {
 	min-width: 400px;
 	overflow-x: scroll;
+	flex-grow: 100;
+	display: flex;
 	/*resize: horizontal;*/
+}
+
+.Tasks
+{
+	flex-grow: 100;
 }

@@ -24,8 +24,9 @@ class ChartContentTask extends React.Component {
         let taskStyles = {
             width: SettingsStore.get('dayWidth') * task.leadTime,
             height: 0.9 * SettingsStore.get('taskHeight') + 'px', // Multiply on 0.9 (decrease actual height) to add some marginBottom :|
-            left: task.offset * SettingsStore.get('dayWidth') + 'px',
-            top: task.position * SettingsStore.get('taskHeight') + 'px',
+            marginBottom: 0.1 * SettingsStore.get('taskHeight') + 'px',
+            marginLeft: task.offset * SettingsStore.get('dayWidth') + 'px',
+            // top: task.position * SettingsStore.get('taskHeight') + 'px',
             borderRadius: SettingsStore.get('taskHeight') + 'px',
             background: `linear-gradient(to right, ${green} 0%, ${green} ${effortDonePercents}%, ${blue} ${effortDonePercents}%, ${blue} 100%)`
         }

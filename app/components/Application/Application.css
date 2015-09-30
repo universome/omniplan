@@ -1,6 +1,15 @@
+/*html, body, main, .Application
+{
+	height: 100%;
+}*/
+
 .Application
 {
 	font-family: 'Roboto', sans-serif;
+	
+	/* We need this so our TaskDetails with position:fixed do not overlap Chart, when we scroll to the bottom */
+	/*box-sizing: content-box;
+	border-bottom: 150px solid transparent;*/
 }
 
 *

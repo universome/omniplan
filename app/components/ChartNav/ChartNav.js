@@ -18,7 +18,9 @@ class ChartNav extends React.Component {
         tasks = tasks.filter(task => task.depth === 1).map((task, i) => <ChartNavTask task={task} plan={plan} number={(i+1).toString()} key={task.id}/>);
 
         return (
-            <div className={ChartNavStyles.Nav} style={style}>{tasks}</div>
+            <div className={ChartNavStyles.Nav} style={style}>
+            	<div className={ChartNavStyles.Task}>{tasks}</div>
+            </div>
         );
     }
 };

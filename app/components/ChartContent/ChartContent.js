@@ -17,17 +17,24 @@ class ChartContent extends React.Component {
         let plan = this.props.plan;
     	let tasks = plan && plan.tasks ? plan.tasks : [];
         let planWidth = getEndDateByPlan(plan).diff( getStartDateByPlan(plan), 'days' ) * SettingsStore.get('dayWidth') + 'px';
+
+        // let windowHeight = window.innerHeight - 80;
+        // let contentHeight = (plan.tasks[plan.tasks.length].position * SettingsStore.get('taskHeight')) + SettingsStore.get('chartGridHeaderHeight');
+        // let contentStyles = { height: windowHeight > contentHeight ? windowHeight : contentHeight }
+
         let tasksStyles = {
         	width: planWidth,
-        	marginTop: ( SettingsStore.get('chartGridHeaderHeight') - SettingsStore.get('taskHeight') ) + 'px'
+        	marginTop: SettingsStore.get('chartGridHeaderHeight')
         }
 
         tasks = tasks.filter(task => task.depth === 1).map(task => <ChartContentTask task={task} plan={plan} key={task.id}/>);
 
         return (
-            <div className={chartContentStyles.Content}>
-                <ChartContentGrid plan={this.props.plan} />
-                <div className={chartContentStyles.Tasks} style={tasksStyles}>{tasks}</div>
+            <div className={chartContentStyles.Content} ref='content'>
+                <div className={chartContentStyles.Wrapper}>
+                	<ChartContentGrid plan={this.props.plan} />
+                	<div className={chartContentStyles.Tasks} style={tasksStyles}>{tasks}</div>
+                </div>
             </div>
         );
     }

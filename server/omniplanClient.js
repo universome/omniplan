@@ -9,7 +9,7 @@ import processData from './processData';
 
 const USERNAME    = '***REMOVED***';
 const PASSWORD    = '***REMOVED***';
-const ARCHIVE_URL = 'https://sync6.omnigroup.com/***REMOVED***/aqCSESNf5vT.oplr/wrapper.zip';
+const ARCHIVE_URL = 'https://sync6.omnigroup.com/***REMOVED***/fNAeAiAMSNw.oplr/wrapper.zip';
 const AUTH_OPTIONS = { auth: {user: USERNAME, pass: PASSWORD, sendImmediately: false} };
 
 const RAW_DATA_FOLDER_PATH = path.join(__dirname, '..', '/tmp/downloads/wrapper');

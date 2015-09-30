@@ -17,7 +17,7 @@ class ChartContentTaskArrow extends React.Component {
 
 		// We display arrow as rectangle with top border and right border
 		// So all we need to do is to calculate 4 properties: top, left, height, width
-        let top    = Math.min(fromTask.position, toTask.position) * SettingsStore.get('taskHeight');
+        let top    = (Math.min(fromTask.position, toTask.position) - 1) * SettingsStore.get('taskHeight');
         let left   = (fromTask.offset + fromTask.leadTime) * SettingsStore.get('dayWidth');
         let height = Math.abs(fromTask.position - toTask.position) * SettingsStore.get('taskHeight');
         let width  = (toTask.offset - (fromTask.offset + fromTask.leadTime)) * SettingsStore.get('dayWidth');

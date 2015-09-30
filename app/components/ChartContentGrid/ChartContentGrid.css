@@ -7,6 +7,7 @@
 	z-index: 1;
 	pointer-events: none;
 	display: flex;
+	flex-grow: 100;
 	flex-wrap: nowrap;
 }
 
@@ -28,7 +29,7 @@
 	font-size: 14px;
 }
 
-.chardContentGridTodayColumn
+.Today
 {
 	height: 100%;
 	background-color: #e74c3c;

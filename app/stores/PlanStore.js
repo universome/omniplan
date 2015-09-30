@@ -91,13 +91,13 @@ PlanStore.dispatchToken = AppDispatcher.register((payload) => {
     if (payload.actionType === 'plan:filter:reset') {
         PlanStore.resetTaskFilters();
     }
+});
 
-    if (payload.actionType === 'task:open' || payload.actionType === 'task:close') {
-    	AppDispatcher.waitFor([SettingsStore.dispatchToken]);
-    	PlanStore.updateTasksPositions( PlanStore.getPlan() );
-    	PlanStore.updateTasksPositions( PlanStore.getFilteredPlan() );
-    	PlanStore.emit('change');
-    }
+/* Is it very bad to subscribe from one to store to changes from another? */
+SettingsStore.on('openedTasks:change', function() {
+	PlanStore.updateTasksPositions( PlanStore.getPlan() );
+	PlanStore.updateTasksPositions( PlanStore.getFilteredPlan() );
+	PlanStore.emit('change');
 });
 
 export default PlanStore;

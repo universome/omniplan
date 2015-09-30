@@ -59,6 +59,10 @@ SettingsStore.dispatchToken = AppDispatcher.register((payload) => {
 	if (payload.actionType === 'task:close') {
 		SettingsStore.removeFromCollection('openedTasks', payload.taskId);
 	}
+
+	if (payload.actionType === 'setting:reset') {
+		SettingsStore.resetSetting('openedTasks', payload.settingName);
+	}
 });
 
 export default SettingsStore;

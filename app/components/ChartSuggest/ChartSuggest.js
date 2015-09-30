@@ -1,6 +1,7 @@
 import React from 'react';
 import {Typeahead} from 'react-typeahead';
 import PlanActions from 'actions/PlanActions';
+import SettingsActions from 'actions/SettingsActions';
 import ChartSuggestStyles from './ChartSuggest.css';
 
 class ChartSuggest extends React.Component {
@@ -14,6 +15,7 @@ class ChartSuggest extends React.Component {
 
 	reset() {
 		PlanActions.resetFilters();
+		SettingsActions.resetSetting('openedTasks');
 		this.refs.typeahead.setEntryText('');
 	}
 
