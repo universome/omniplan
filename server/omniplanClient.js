@@ -7,9 +7,10 @@ import ADMZip from 'adm-zip';
 import R from 'ramda';
 import processData from './processData';
 
-const USERNAME    = '***REMOVED***';
-const PASSWORD    = '***REMOVED***';
-const ARCHIVE_URL = 'https://sync6.omnigroup.com/***REMOVED***/fNAeAiAMSNw.oplr/wrapper.zip';
+const USERNAME     = '***REMOVED***';
+const PASSWORD     = '***REMOVED***';
+const PROJECT      = process.env.PROJECT || 'fNAeAiAMSNw';
+const ARCHIVE_URL  = `https:\/\/sync6.omnigroup.com/***REMOVED***/${PROJECT}.oplr/wrapper.zip`;
 const AUTH_OPTIONS = { auth: {user: USERNAME, pass: PASSWORD, sendImmediately: false} };
 
 const RAW_DATA_FOLDER_PATH = path.join(__dirname, '..', '/tmp/downloads/wrapper');

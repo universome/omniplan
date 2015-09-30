@@ -2,11 +2,13 @@ import express from 'express';
 import * as omniplanClient from './omniplanClient';
 import Root from '../app/components/Root';
 import React from 'react';
+import path from 'path';
 
-const PORT = 3000;
-const UPDATE_INTERVAL = 10 * 60 * 1000; /* Update data every 10 minutes */
+const PORT = process.env.PORT || 3000;
+const PROD = process.env.PROD || false;
+const UPDATE_INTERVAL = process.env.UPDATE_INTERVAL || 10 * 60 * 1000; /* Update data every 10 minutes */
 
-var server = express();
+var app = express();
 var responseData = null;
 
 updateResponseData()
@@ -17,7 +19,7 @@ updateResponseData()
 function startServer(port) {
 	var port = port || PORT;
 
-	server.all('*', (req, res, next) => {
+	app.all('*', (req, res, next) => {
 		res.header("Access-Control-Allow-Origin", "*");
 		res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE');
 		res.header("Access-Control-Allow-Headers", "X-Requested-With");
@@ -26,9 +28,10 @@ function startServer(port) {
 		next();
 	});
 
-	server.get('/', (req, res) => res.send('<!DOCTYPE html>' + React.renderToString(<Root/>)));
-	server.get('/getPlan', (req, res) => res.send(responseData));
-	server.listen(port, console.log.bind(console, `Server has started on port: ${port}`));
+	app.use('/', express.static( path.resolve(__dirname, '..', 'bin') ));
+	app.get('/', (req, res) => res.send('<!DOCTYPE html>' + React.renderToString(<Root PROD={PROD}/>)));
+	app.get('/getPlan', (req, res) => res.send(responseData));
+	app.listen(port, console.log.bind(console, `Server has started on port: ${port}`));
 }
 
 function updateResponseData() {

@@ -1,5 +1,7 @@
+const PORT = process.env.PORT || 49494;
+
 global.config = {
-    API_URL: 'http://localhost:3000'
+    API_URL: `http:\/\/localhost:${PORT}`
 }
 
 import React from 'react';
