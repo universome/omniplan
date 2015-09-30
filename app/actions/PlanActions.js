@@ -11,7 +11,7 @@ class PlanActionsClass {
         }
 
         $
-            .getJSON(config.API_URL + '/getPlan')
+            .getJSON('/getPlan')
             .fail(console.warn.bind(console))
             .success(plan => {
                 AppDispatcher.dispatch({actionType: 'plan:fetch', plan: plan});
