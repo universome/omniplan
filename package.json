@@ -7,7 +7,7 @@
     "dev": "npm run server & npm run client",
     "client": "node_modules/.bin/webpack-dev-server",
     "server": "./node_modules/.bin/nodemon --exec ./node_modules/.bin/babel-node server/index",
-    "prod": "./node_modules/.bin/forever start -c ./node_modules/.bin/babel-node server/index.js PROD=1 PORT=49494",
+    "prod": "./node_modules/.bin/pm2 start server/index.js --interpreter ./node_modules/.bin/babel-node server/index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -32,12 +32,12 @@
     "express": "^4.13.3",
     "extract-text-webpack-plugin": "^0.8.2",
     "flux": "^2.1.1",
-    "forever": "^0.15.1",
     "jquery": "^2.1.4",
     "lodash": "^3.10.1",
     "mkpath": "^0.1.0",
     "moment": "^2.10.6",
     "nodemon": "^1.5.0",
+    "pm2": "^0.15.7",
     "postcss": "^5.0.5",
     "postcss-loader": "^0.6.0",
     "ramda": "^0.17.1",
