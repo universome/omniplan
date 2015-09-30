@@ -17,8 +17,6 @@ updateResponseData()
 	.catch(console.log.bind(console));
 
 function startServer(port) {
-	var port = port || PORT;
-
 	app.all('*', (req, res, next) => {
 		res.header("Access-Control-Allow-Origin", "*");
 		res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE');
@@ -31,7 +29,7 @@ function startServer(port) {
 	app.use('/', express.static( path.resolve(__dirname, '..', 'bin') ));
 	app.get('/', (req, res) => res.send('<!DOCTYPE html>' + React.renderToString(<Root PROD={PROD}/>)));
 	app.get('/getPlan', (req, res) => res.send(responseData));
-	app.listen(port, console.log.bind(console, `Server has started on port: ${port}`));
+	app.listen(PORT, console.log.bind(console, `Server has started on port: ${PORT}`));
 }
 
 function updateResponseData() {
