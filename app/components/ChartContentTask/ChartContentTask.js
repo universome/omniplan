@@ -37,7 +37,7 @@ class ChartContentTask extends React.Component {
         }
 
         subTasks = subTasks.map(subTask => <ChartContentTask task={subTask} plan={plan} key={subTask.id} />);
-        depArrows = depArrows.map(depArrow => <ChartContentTaskArrow fromTask={depArrow.fromTask} toTask={depArrow.toTask} key={depArrow.fromTask.id}/>);
+        depArrows = depArrows.map(depArrow => <ChartContentTaskArrow fromTask={depArrow.fromTask} toTask={depArrow.toTask} plan={plan} key={depArrow.fromTask.id}/>);
 
         return (
             <div>

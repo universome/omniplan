@@ -9,17 +9,20 @@ class ChartContentTaskArrow extends React.Component {
     }
 
     render() {
+        let plan = this.props.plan;
         let fromTask = this.props.fromTask;
         let toTask = this.props.toTask;
+        let fromTaskPosition = plan.tasksPositionsMap[fromTask.id];
+        let toTaskPosition = plan.tasksPositionsMap[toTask.id];
 
 		// If our arrow goes from bottom to top – we will have a bit different styles
-        let isFromBottomToTop = fromTask.position > toTask.position;
+        let isFromBottomToTop = fromTaskPosition > toTaskPosition;
 
 		// We display arrow as rectangle with top border and right border
 		// So all we need to do is to calculate 4 properties: top, left, height, width
-        let top    = (Math.min(fromTask.position, toTask.position) - 1) * SettingsStore.get('taskHeight');
+        let top    = (Math.min(fromTaskPosition, toTaskPosition) - 1) * SettingsStore.get('taskHeight');
         let left   = (fromTask.offset + fromTask.leadTime) * SettingsStore.get('dayWidth');
-        let height = Math.abs(fromTask.position - toTask.position) * SettingsStore.get('taskHeight');
+        let height = Math.abs(fromTaskPosition - toTaskPosition) * SettingsStore.get('taskHeight');
         let width  = (toTask.offset - (fromTask.offset + fromTask.leadTime)) * SettingsStore.get('dayWidth');
 
         // Add a little to top and substract from height, so our arrows appear nicely (be fully visible and placed vertically at the middle of the bar)

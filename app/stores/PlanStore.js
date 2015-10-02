@@ -13,8 +13,6 @@ class PlanStoreClass extends EventEmitter {
         this._plan = {};
         this._filteredPlan = {};
         this._taskFilters = [];
-        this._lastFiltersUpdateTime = NaN;
-        this._lastFilteredPlanCalculationTime = NaN;
     }
 
     getPlan() {
@@ -23,20 +21,15 @@ class PlanStoreClass extends EventEmitter {
 
     getFilteredPlan() {
 
-    	if (this._lastFiltersUpdateTime <= this._lastFilteredPlanCalculationTime) return this._filteredPlan;
-
-        let plan = this.getPlan();
+        this._filteredPlan = this.getPlan();
         let chosenResourceIds = this._taskFilters.map(filter => filter.value); // We can filter only by resource id
-
-        this._lastFilteredPlanCalculationTime = Date.now();
-        this._filteredPlan = R.clone(plan);
         
         if (!chosenResourceIds.length) return this._filteredPlan;
         
         this._filteredPlan.tasks = this._filteredPlan.tasks.filter(task => checkIfTaskContainsResources(task, this._filteredPlan.tasksMap, chosenResourceIds));
         this._filteredPlan.tasksMap = createMapFromArray('id', this._filteredPlan.tasks) || {};
         this._filteredPlan.resourcesMap = createMapFromArray('id', this._filteredPlan.resources) || {};
-        calculateTasksPositions(this._filteredPlan.tasks, this._filteredPlan.tasksMap);
+        this._filteredPlan.tasksPositionsMap = calculateTasksPositions(this._filteredPlan.tasks, this._filteredPlan.tasksMap);
 
         return this._filteredPlan;
     }
@@ -49,7 +42,6 @@ class PlanStoreClass extends EventEmitter {
         
         setNumbersToTasks(this._plan.tasks.filter(t => t.depth === 1), this._plan.tasksMap);
         
-        this._lastFiltersUpdateTime = Date.now();
         this._filteredPlan = this.getFilteredPlan();
         this.updateTasksPositions(this._filteredPlan);
         
@@ -58,13 +50,11 @@ class PlanStoreClass extends EventEmitter {
 
     addTaskFilter(filter) {
         this._taskFilters.push(filter);
-        this._lastFiltersUpdateTime = Date.now();
         this.emit('change');
     }
 
     resetTaskFilters() {
         this._taskFilters = [];
-        this._lastFiltersUpdateTime = Date.now();
         this.emit('change');
     }
 
@@ -72,8 +62,8 @@ class PlanStoreClass extends EventEmitter {
     	let openedTasks = SettingsStore.get('openedTasks');
     	
     	plan.tasks.forEach(task => { task.isOpened = openedTasks.indexOf(task.id) >= 0 });
-    	calculateTasksPositions(plan.tasks, plan.tasksMap);
-    	plan.tasks.sort((t1, t2) => t1.position - t2.position);
+    	plan.tasksPositionsMap = calculateTasksPositions(plan.tasks, plan.tasksMap);
+    	plan.tasks.sort((t1, t2) => plan.tasksPositionsMap[t1.id] - plan.tasksPositionsMap[t2.id]);
     }
 }
 
@@ -119,26 +109,26 @@ function checkIfTaskContainsResources(task, tasksMap, resourcesIds) {
     return doesTaskContainsResources || doSubTasksContainResources;
 }
 
-function calculateTasksPositions(tasks, tasksMap, _processedTasks, _counter, _shouldIncrement) {
+function calculateTasksPositions(tasks, tasksMap, _positionsMap, _counter, _shouldIncrement) {
 
-    let processedTasks = _processedTasks || {};
+    let positionsMap = _positionsMap || {};
     let counter = _counter || {position: -1};
     let shouldIncrement = _shouldIncrement !== undefined ? _shouldIncrement : true;
 
     tasks.forEach(task => {
-    	if (processedTasks[task.id]) return;
+    	if (positionsMap[task.id]) return;
 
-        task.position = counter.position + 1;
-        processedTasks[task.id] = true;
-        
+        positionsMap[task.id] = counter.position + 1;
         if (shouldIncrement) counter.position += 1;
 
         // Subtasks should go immidiately after their parent
         if (task.subTasksIds) {
         	let subTasks = task.subTasksIds.map(id => tasksMap[id]);
-        	calculateTasksPositions(subTasks, tasksMap, processedTasks, counter, task.isOpened && shouldIncrement);
+        	calculateTasksPositions(subTasks, tasksMap, positionsMap, counter, task.isOpened && shouldIncrement);
         }
     });
+
+    return positionsMap;
 }
 
 function setNumbersToTasks(tasks, tasksMap, _number) {

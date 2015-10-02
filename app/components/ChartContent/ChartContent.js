@@ -18,10 +18,6 @@ class ChartContent extends React.Component {
     	let tasks = plan && plan.tasks ? plan.tasks : [];
         let planWidth = getEndDateByPlan(plan).diff( getStartDateByPlan(plan), 'days' ) * SettingsStore.get('dayWidth') + 'px';
 
-        // let windowHeight = window.innerHeight - 80;
-        // let contentHeight = (plan.tasks[plan.tasks.length].position * SettingsStore.get('taskHeight')) + SettingsStore.get('chartGridHeaderHeight');
-        // let contentStyles = { height: windowHeight > contentHeight ? windowHeight : contentHeight }
-
         let tasksStyles = {
         	width: planWidth,
         	marginTop: SettingsStore.get('chartGridHeaderHeight')
