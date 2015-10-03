@@ -23,7 +23,8 @@ class ChartContent extends React.Component {
         	marginTop: SettingsStore.get('chartGridHeaderHeight')
         }
 
-        tasks = tasks.filter(task => task.depth === 1).map(task => <ChartContentTask task={task} plan={plan} key={task.id}/>);
+        tasks = tasks.filter(task => !task.parentTaskId || plan.tasksMap[task.parentTaskId].isOpened); // Ultra optimization: do not draw tasks, which parents are not visible
+        tasks = tasks.filter(task => task.depth !== 0).map(task => <ChartContentTask task={task} plan={plan} key={task.id}/>);
 
         return (
             <div className={chartContentStyles.Content} ref='content'>

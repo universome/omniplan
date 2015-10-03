@@ -45,6 +45,7 @@
     "react": "^0.13.3",
     "react-typeahead": "^1.1.4",
     "request": "^2.61.0",
+    "shallow-copy": "0.0.1",
     "source-map-loader": "^0.1.5",
     "style-loader": "^0.12.3",
     "stylus": "^0.42.3",

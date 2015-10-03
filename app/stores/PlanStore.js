@@ -1,6 +1,7 @@
 import EventEmitter from 'events';
 import moment from 'moment';
 import R from 'ramda';
+import copy from 'shallow-copy';
 import AppDispatcher from 'AppDispatcher';
 import SettingsStore from 'stores/SettingsStore';
 import createMapFromArray from 'helpers/createMapFromArray';
@@ -9,7 +10,7 @@ class PlanStoreClass extends EventEmitter {
 
     constructor() {
         super();
-        
+
         this._plan = {};
         this._filteredPlan = {};
         this._taskFilters = [];
@@ -20,15 +21,14 @@ class PlanStoreClass extends EventEmitter {
     }
 
     getFilteredPlan() {
-
-        this._filteredPlan = this.getPlan();
+        this._filteredPlan = copy(this.getPlan());
         let chosenResourceIds = this._taskFilters.map(filter => filter.value); // We can filter only by resource id
-        
+
         if (!chosenResourceIds.length) return this._filteredPlan;
-        
-        this._filteredPlan.tasks = this._filteredPlan.tasks.filter(task => checkIfTaskContainsResources(task, this._filteredPlan.tasksMap, chosenResourceIds));
-        this._filteredPlan.tasksMap = createMapFromArray('id', this._filteredPlan.tasks) || {};
-        this._filteredPlan.resourcesMap = createMapFromArray('id', this._filteredPlan.resources) || {};
+
+        this._filteredPlan.tasks = this._filteredPlan.tasks.filter(task => doesTaskContainsResourcesIds(task, this._filteredPlan.tasksMap, chosenResourceIds));
+        this._filteredPlan.tasksMap = createMapFromArray('id', this._filteredPlan.tasks);
+        this._filteredPlan.resourcesMap = createMapFromArray('id', this._filteredPlan.resources);
         this._filteredPlan.tasksPositionsMap = calculateTasksPositions(this._filteredPlan.tasks, this._filteredPlan.tasksMap);
 
         return this._filteredPlan;
@@ -39,12 +39,12 @@ class PlanStoreClass extends EventEmitter {
         this._plan.tasksMap = this._plan.tasks ? createMapFromArray('id', this._plan.tasks) : {};
         this._plan.resourcesMap = this._plan.resources ? createMapFromArray('id', this._plan.resources) : {};
         this.updateTasksPositions(this.getPlan());
-        
+
         setNumbersToTasks(this._plan.tasks.filter(t => t.depth === 1), this._plan.tasksMap);
-        
+
         this._filteredPlan = this.getFilteredPlan();
         this.updateTasksPositions(this._filteredPlan);
-        
+
         this.emit('change');
     }
 
@@ -60,7 +60,7 @@ class PlanStoreClass extends EventEmitter {
 
     updateTasksPositions(plan) {
     	let openedTasks = SettingsStore.get('openedTasks');
-    	
+
     	plan.tasks.forEach(task => { task.isOpened = openedTasks.indexOf(task.id) >= 0 });
     	plan.tasksPositionsMap = calculateTasksPositions(plan.tasks, plan.tasksMap);
     	plan.tasks.sort((t1, t2) => plan.tasksPositionsMap[t1.id] - plan.tasksPositionsMap[t2.id]);
@@ -92,19 +92,15 @@ SettingsStore.on('openedTasks:change', function() {
 
 export default PlanStore;
 
-/* 
+/*
 	HELPERS!
 	I did not moved them to [helpers] folder, because they are not common)
 */
-function checkIfTaskContainsResources(task, tasksMap, resourcesIds) {
+function doesTaskContainsResourcesIds(task, tasksMap, resourcesIds) {
 
-    // First, recoursively filter all subtasks
-    if (task.subTasksIds) {
-        task.subTasksIds = task.subTasksIds.filter(id => checkIfTaskContainsResources(tasksMap[id], tasksMap, resourcesIds));
-    }
-
-    let doesTaskContainsResources = task.assignment && resourcesIds.indexOf(task.assignment.resourceId) >= 0;
-    let doSubTasksContainResources = task.subTasksIds && task.subTasksIds.length;
+    let filteredSubTasks = task.subTasksIds ? task.subTasksIds.filter(id => doesTaskContainsResourcesIds(tasksMap[id], tasksMap, resourcesIds)) : [];
+    let doesTaskContainsResources = task.assignment ? resourcesIds.indexOf(task.assignment.resourceId) >= 0 : false;
+    let doSubTasksContainResources = filteredSubTasks.length > 0;
 
     return doesTaskContainsResources || doSubTasksContainResources;
 }
@@ -123,7 +119,7 @@ function calculateTasksPositions(tasks, tasksMap, _positionsMap, _counter, _shou
 
         // Subtasks should go immidiately after their parent
         if (task.subTasksIds) {
-        	let subTasks = task.subTasksIds.map(id => tasksMap[id]);
+        	let subTasks = task.subTasksIds.map(id => tasksMap[id]).filter(Boolean); // Remove tasks, which are not in tasksMap
         	calculateTasksPositions(subTasks, tasksMap, positionsMap, counter, task.isOpened && shouldIncrement);
         }
     });

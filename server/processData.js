@@ -44,10 +44,10 @@ export default function processData(rawData) {
 
         // Add additional fields, so it will be easier to display task
         data.tasks.forEach(task => addDateToTask(task, tasksMap, data.creationDate));
-        
+
         // Dependency tasks must be upper (this is  Gantt chart, bro)
         sortTasksWithDeps(data.tasks[0].subTasksIds.map(id => tasksMap[id]), tasksMap);
-        
+
         // Calculating depths will allow us to easily add left paddings in Navigation panel
         addDepthsToTasks(data.tasks, tasksMap);
 
@@ -56,10 +56,12 @@ export default function processData(rawData) {
 
         // leadTime is amount of days, which task takes, including holidays and weekends
         addLeadTime(data.tasks);
-        
+
         // effortDone is amount of days, including holidays and so, that are spent on the task
-        let processedTasks = [];
-        data.tasks.forEach(task => calculateDoneEffortInDays(task, tasksMap, processedTasks));
+        calculateDoneEffortInDays(data.tasks, tasksMap);
+
+        // We need parent links on tasks when deciding draw or not to draw a task (do not draw when parent is closed)
+        setParentLinksToTasks(data.tasks, tasksMap);
 
         resolve(data);
     });
@@ -135,7 +137,7 @@ function processTask(taskData) {
 }
 
 function processUserData(rawUserData) {
-	
+
 	let userDataKeys = rawUserData.key || [];
 	let userDataValues = rawUserData.string || [];
 	let userData = userDataKeys.map((key, i) => { return {key: key, value: userDataValues[i]} } );
@@ -150,7 +152,7 @@ function processStyle(styleData) {
     return style;
 }
 
-function addDateToTask(task, tasksMap, defaultStartDate) {  
+function addDateToTask(task, tasksMap, defaultStartDate) {
 
     if (task.endDate && task.startDate) return;
 
@@ -205,7 +207,7 @@ function addDateToTask(task, tasksMap, defaultStartDate) {
     /* Counting endDate */
 
     if (task.subTasksIds) {
-        
+
         let latestSubTask = null;
 
         task.subTasksIds.map(id => tasksMap[id]).forEach(subTask => {
@@ -274,7 +276,7 @@ function compareDirectSubtasks(tasksMap, aTask, bTask) {
 	switch (true) {
 		case doesBTaskDependOnATask && doesATaskDepenOnBTask:
 			console.warn('Wierd shit. A task depends on B task and backwards.');
-			return 0;	
+			return 0;
 
 		case !doesBTaskDependOnATask && !doesATaskDepenOnBTask:
 			return 0; // Nothing depends on anything
@@ -301,7 +303,7 @@ function collectAllDepTasksIds(task, tasksMap) {
 
 function collectAllTasksIds(task, tasksMap) {
 	let allTasksIds = [task.id];
-	
+
 	if (task.subTasksIds) {
 		task.subTasksIds.map(id => tasksMap[id]).forEach(task => {
 			allTasksIds = allTasksIds.concat(collectAllTasksIds(task, tasksMap));
@@ -316,9 +318,9 @@ function addDepthsToTasks(tasks, tasksMap, _depth) {
     let depth = _depth || 0;
 
     tasks.forEach(task => {
-        
+
         if (task.depth) return;
-        
+
         task.depth = depth;
 
         if (task.subTasksIds) {
@@ -366,24 +368,35 @@ function fixDeps(tasks, tasksMap) {
     });
 }
 
-function calculateDoneEffortInDays(task, tasksMap, processedTasks) {
+function calculateDoneEffortInDays(tasks, tasksMap, _processedTasks) {
 
-	if (processedTasks.includes(task.id)) return task.effortDone;
+    let processedTasks = _processedTasks || [];
 
-	if (task.effortDone) {
-		let effortDoneEnd = countEndDate(task.startDate, task.effortDone / WORKING_TIME_PER_DAY);
-		task.effortDone = effortDoneEnd.diff(task.startDate, 'days');
-	} else if (task.subTasksIds) {
-		let totalEffortDone = task.subTasksIds.map(id => calculateDoneEffortInDays(tasksMap[id], tasksMap, processedTasks)).reduce((a, b) => a + b);
-		let totalEffortNeeded = task.subTasksIds.map(id => tasksMap[id].leadTime).reduce((a, b) => a + b);
-		let effortDoneFraction = totalEffortDone / totalEffortNeeded;
-		let effortDoneDays = effortDoneFraction * task.leadTime;
-		task.effortDone = Math.round(effortDoneDays);
-	} else {
-		task.effortDone = 0;
-	}
+    tasks.forEach(task => {
+        if (processedTasks.includes(task.id)) {
+            return;
+        } else if (task.effortDone) {
+    		let effortDoneEnd = countEndDate(task.startDate, task.effortDone / WORKING_TIME_PER_DAY);
+    		task.effortDone = effortDoneEnd.diff(task.startDate, 'days');
+    	} else if (task.subTasksIds) {
+            calculateDoneEffortInDays(task.subTasksIds.map(id => tasksMap[id]), tasksMap, processedTasks);
+    		let totalEffortDone = task.subTasksIds.map(id => tasksMap[id].effortDone).reduce((a, b) => a + b);
+    		let totalEffortNeeded = task.subTasksIds.map(id => tasksMap[id].leadTime).reduce((a, b) => a + b);
+    		let effortDoneFraction = totalEffortDone / totalEffortNeeded;
+    		let effortDoneDays = effortDoneFraction * task.leadTime;
+    		task.effortDone = Math.round(effortDoneDays);
+    	} else {
+    		task.effortDone = 0;
+    	}
 
-	processedTasks.push(task.id);
+    	processedTasks.push(task.id);
+    });
+}
 
-	return task.effortDone;
+function setParentLinksToTasks(tasks, tasksMap) {
+    tasks.forEach(task => {
+        if (task.subTasksIds) {
+            task.subTasksIds.map(id => tasksMap[id]).forEach(subTask => subTask.parentTaskId = task.id);
+        }
+    });
 }

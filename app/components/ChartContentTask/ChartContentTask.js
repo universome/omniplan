@@ -16,7 +16,6 @@ class ChartContentTask extends React.Component {
         let plan = this.props.plan;
         let resourceName = task.assignment ? plan.resourcesMap[task.assignment.resourceId].name : '';
         let startDate = moment(task.startDate);
-        let subTasks = task.subTasksIds && task.isOpened ? task.subTasksIds.map(id => plan.tasksMap[id]) : []; // Ultra optimization: do not draw subTasks if parent task is not opened!
         let depArrows = task.depTasksIds ? task.depTasksIds.filter(id => plan.tasksMap[id]).map(id => {return { fromTask: plan.tasksMap[id], toTask: task }}) : [];
         let effortDonePercents = Math.round((task.effortDone / task.effort) * 100) || 0;
         let blue = '#3498db';
@@ -36,7 +35,6 @@ class ChartContentTask extends React.Component {
         	lineHeight: SettingsStore.get('taskHeight') + 'px'
         }
 
-        subTasks = subTasks.map(subTask => <ChartContentTask task={subTask} plan={plan} key={subTask.id} />);
         depArrows = depArrows.map(depArrow => <ChartContentTaskArrow fromTask={depArrow.fromTask} toTask={depArrow.toTask} plan={plan} key={depArrow.fromTask.id}/>);
 
         return (
@@ -44,7 +42,6 @@ class ChartContentTask extends React.Component {
                 <div style={taskStyles} className={`${ChartContentTaskStyles.Task} ${(task.isOpened ? ChartContentTaskStyles.Opened : '')}`} onClick={this.toggle.bind(this)}>
                 	<div className={ChartContentTaskStyles.ResourceName} style={resourceNameStyles}>{resourceName}</div>
                 </div>
-                <div className={ChartContentTaskStyles.SubTasks} style={{visibility:task.isOpened ? 'visible' : 'hidden'}}>{subTasks}</div>
                 {depArrows}
             </div>
         );

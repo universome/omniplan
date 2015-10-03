@@ -102,7 +102,7 @@ export function init() {
             .then(processData)
             .then(saveJSON)
             .then(resolve)
-            .catch((err) => console.log('Error in omniplanClient:', err));
+            .catch((err) => console.log('Error in omniplanClient:', err.stack));
         // getFile(RAW_DATA_FOLDER_PATH)
         //     .then(convertXmlToJson)
         //     .then(processData)
