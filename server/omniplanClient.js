@@ -6,12 +6,10 @@ import mkpath from 'mkpath';
 import ADMZip from 'adm-zip';
 import R from 'ramda';
 import processData from './processData';
+import config from '../config.json';
 
-const USERNAME     = '***REMOVED***';
-const PASSWORD     = '***REMOVED***';
-const PROJECT      = process.env.PROJECT || 'fNAeAiAMSNw';
-const ARCHIVE_URL  = `https:\/\/sync6.omnigroup.com/***REMOVED***/${PROJECT}.oplr/wrapper.zip`;
-const AUTH_OPTIONS = { auth: {user: USERNAME, pass: PASSWORD, sendImmediately: false} };
+const ARCHIVE_URL  = `${config.storageUrl}/${config.projectId}.oplr/wrapper.zip`;
+const AUTH_OPTIONS = { auth: {user: config.username, pass: config.password, sendImmediately: false} };
 
 const RAW_DATA_FOLDER_PATH = path.join(__dirname, '..', '/tmp/downloads/wrapper');
 const ARCHIVE_FILE_NAME = 'wrapper.zip';
