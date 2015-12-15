@@ -14,7 +14,7 @@ var responseData = null;
 updateResponseData()
 	.then(startServer)
 	.then(startUpdatingData)
-	.catch(console.log.bind(console));
+	.catch(err => console.log('Error in server:', err, err.stack));
 
 function startServer(port) {
 	app.all('*', (req, res, next) => {
@@ -39,7 +39,7 @@ function updateResponseData() {
 			responseData.updateTime = Date.now();
 			console.info('Response data updated', responseData.updateTime);
 			resolve();
-		});
+		}).catch((err) => console.log('Error in updateResponseData:', err.stack));
 	});
 }
 

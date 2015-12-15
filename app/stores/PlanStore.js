@@ -94,7 +94,7 @@ export default PlanStore;
 
 /*
 	HELPERS!
-	I did not moved them to [helpers] folder, because they are not common)
+	I did not moved them to [helpers] folder, because they are kinda private)
 */
 function doesTaskContainsResourcesIds(task, tasksMap, resourcesIds) {
 

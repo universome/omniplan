@@ -1,6 +1,6 @@
 .git
 node_modules
 npm-debug.log
-# tmp
+tmp
 dist
 config.json
