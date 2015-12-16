@@ -13,12 +13,12 @@
   },
   "repository": {
     "type": "git",
-    "url": "git@github.yandex-team.ru:universome/omniplan.git"
+    "url": "git@github.com:universome/omniplan.git"
   },
   "keywords": [
     "omniplan"
   ],
-  "author": "Ivan Skorokhodov <universome@yandex-team.ru>",
+  "author": "Ivan Skorokhodov <iskorokhodov@gmail.com>",
   "license": "ISC",
   "dependencies": {
     "adm-zip": "^0.4.7",
