@@ -26,7 +26,7 @@ class ChartContentTask extends React.Component {
             marginBottom: 0.1 * SettingsStore.get('taskHeight') + 'px',
             marginLeft: task.offset * SettingsStore.get('dayWidth') + 'px',
             // top: task.position * SettingsStore.get('taskHeight') + 'px',
-            borderRadius: SettingsStore.get('taskHeight') + 'px',
+            // borderRadius: SettingsStore.get('taskHeight') + 'px',
             background: `linear-gradient(to right, ${green} 0%, ${green} ${effortDonePercents}%, ${blue} ${effortDonePercents}%, ${blue} 100%)`
         }
 

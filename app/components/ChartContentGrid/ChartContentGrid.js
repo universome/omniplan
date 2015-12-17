@@ -21,9 +21,9 @@ class ChartContentGrid extends React.Component {
             left: moment().diff(startDate, 'days') * SettingsStore.get('dayWidth') + 'px',
             display: startDate.isBefore(moment()) ? 'block' : 'none'
         }
-            
+
         while (startDate.isBefore(endDate)) {
-            columns.push(<ChartContentGridColumn key={startDate.format()} startDate={moment(startDate)} />);
+            columns.push(<ChartContentGridMonthColumn key={startDate.format()} startDate={moment(startDate)} />);
             startDate.add(1, 'months');
         }
 
@@ -36,21 +36,40 @@ class ChartContentGrid extends React.Component {
     }
 };
 
-class ChartContentGridColumn extends React.Component {
+class ChartContentGridMonthColumn extends React.Component {
 	constructor(...args) {
         super(args);
     }
 
     render() {
     	let startDate = this.props.startDate;
+    	let amountOfDays = getAmountOfDaysInMonth(startDate);
     	let title = startDate.format('MMMM YYYY');
-    	let style = {width: getAmountOfDaysInMonth(startDate) * SettingsStore.get('dayWidth') + 'px'};
+    	let style = {width: amountOfDays * SettingsStore.get('dayWidth') + 'px'};
+    	let days = Array
+    		.apply(null, {length: amountOfDays})
+    		.map(Number.call, Number)
+    		.map((day, i) => <ChartContentGridDayColumn date={startDate.clone().add(i)} key={i} />)
 
     	return (
     		<div className={ChartContentGridStyles.chartContentGridColumn} style={style}>
-    			<div className={ChartContentGridStyles.ColumnHeader} style={{height: SettingsStore.get('chartGridHeaderHeight') + 'px'}}>{title}</div>
+    			<p className={ChartContentGridStyles.ColumnHeader} style={{height: SettingsStore.get('chartGridHeaderHeight') + 'px'}}>{title}</p>
+    			<div className={ChartContentGridStyles.DaysColumns}>{days}</div>
     		</div>
 		);
+    }
+}
+
+class ChartContentGridDayColumn extends React.Component {
+	constructor(...args) {
+        super(args);
+    }
+
+    render() {
+    	let date = this.props.date;
+    	let styles = {width: SettingsStore.get('dayWidth') + 'px'};
+
+    	return <div className={ChartContentGridStyles.DayColumn} style={styles} />;
     }
 }
 

@@ -2,6 +2,7 @@
 {
     /*border: 2px solid #34495e; */ /* wet asphalt */
     border: 2px solid #2980b9;
+    border-radius: 5px;
     position: relative;
     cursor: pointer;
 }

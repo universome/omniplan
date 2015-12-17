@@ -5,7 +5,7 @@
   "main": "server/index.js",
   "scripts": {
     "dev": "npm run server & npm run client",
-    "client": "node_modules/.bin/webpack-dev-server",
+    "client": "node_modules/.bin/webpack-dev-server --hot --inline",
     "server": "./node_modules/.bin/nodemon --exec ./node_modules/.bin/babel-node server/index",
     "prod": "./node_modules/.bin/pm2 start server/index.js --interpreter ./node_modules/.bin/babel-node server/index.js",
     "build": "./node_modules/.bin/webpack",

@@ -6,7 +6,7 @@ class SettingsStoreClass extends EventEmitter {
 
 	static get defaults() {
 		return {
-			dayWidth: 10,
+			dayWidth: 15,
 			taskHeight: 25,
 			chartGridHeaderHeight: 40,
 			openedTasks: ['t-1'],
