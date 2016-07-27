@@ -42,7 +42,7 @@
     "postcss": "^5.0.5",
     "postcss-loader": "^0.6.0",
     "ramda": "^0.17.1",
-    "react": "^0.13.3",
+    "react": "^0.14.0",
     "react-typeahead": "^1.1.4",
     "request": "^2.61.0",
     "shallow-copy": "0.0.1",
