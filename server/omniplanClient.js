@@ -11,7 +11,7 @@ import mergeInitialDataAndChangelog from './mergeInitialDataAndChangelog';
 import enrichProjectData from './enrichProjectData';
 import config from '../config.json';
 
-const ARCHIVE_URL  = `${config.storageUrl}/${config.projectId}.oplr/wrapper.zip`;
+const ARCHIVE_URL  = `https://${config.storageUrl}/${config.projectId}.oplr/wrapper.zip`;
 const AUTH_OPTIONS = { auth: {user: config.username, pass: config.password, sendImmediately: false} };
 
 const PROJECT_FOLDER_PATH = path.join(__dirname, '..', `/tmp/${config.projectId}`);
