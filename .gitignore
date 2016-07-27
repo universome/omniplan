@@ -1,6 +1,7 @@
-.git
-node_modules
+.git/
+node_modules/
 npm-debug.log
-tmp
-dist
+tmp/
+dist/
 config.json
+bin/
